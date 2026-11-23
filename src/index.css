@@ -1,9 +1,15 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @layer base {
   :root {
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --brand: #1D6F5A;
+    --brand-hover: #175C4A;
+    --canvas: #F4F4F1;
+    --surface: #FFFFFF;
+    --hairline: #E6E6E1;
   }
 
   * {
@@ -13,10 +19,10 @@
   body {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
     overscroll-behavior-y: none;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
-/* Subtle custom scrollbars for inner containers */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -28,7 +34,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -43,17 +49,29 @@
 
 @keyframes scanLine {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(196px); }
+  50% { transform: translateY(188px); }
 }
 
 .animate-slide-up {
-  animation: slideUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUp 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.2s ease-out forwards;
+  animation: fadeIn 0.16s ease-out forwards;
 }
 
 .animate-scan-line {
-  animation: scanLine 2.2s ease-in-out infinite;
+  animation: scanLine 2.1s ease-in-out infinite;
+}
+
+/* Override Leaflet attribution to keep mobile map compact and clean */
+.leaflet-control-attribution {
+  font-size: 9px !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  padding: 1px 5px !important;
+}
+
+.nj-pin-wrapper {
+  background: transparent;
+  border: none;
 }

@@ -8,11 +8,12 @@ import {
   X,
   Building2,
   ReceiptText,
-  AlertTriangle,
+  AlertCircle,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SubPageHeader } from '../components/Layout';
 import { BULKY_ITEMS_CATALOG, BULKY_PROVIDERS } from '../data/mockData';
+import { ItemIcon } from '../components/NanjingVisuals';
 
 export const BulkyBookingPage: React.FC = () => {
   const { addresses, selectedAddressId, navigate, createOrder, setActiveTab, showToast } = useApp();
@@ -64,19 +65,13 @@ export const BulkyBookingPage: React.FC = () => {
       });
   };
 
-  const handleAddSamplePhoto = () => {
-    if (photos.length >= 4) return;
-    setPhotos((prev) => [...prev, '/images/card-bulky.jpg']);
-    showToast('已添加演示现场照片', 'info');
-  };
-
   const handleSubmit = () => {
     if (!currentAddr) {
-      showToast('请先选择回收清运地址', 'warning');
+      showToast('请先选择清运地址', 'warning');
       return;
     }
     if (totalItems === 0) {
-      showToast('请至少选择一件需要清运的大件物品', 'warning');
+      showToast('请至少选择一件大件物品', 'warning');
       return;
     }
     const provider = BULKY_PROVIDERS.find((p) => p.id === providerId)!;
@@ -89,7 +84,7 @@ export const BulkyBookingPage: React.FC = () => {
 
     createOrder({
       category: 'bulky',
-      categoryLabel: '大件垃圾预约清运',
+      categoryLabel: '大件家具清运',
       status: 'pending',
       appointmentTime: timeSlot,
       addressText: `${currentAddr.region}${currentAddr.street} ${currentAddr.community} ${currentAddr.detail}`,
@@ -99,60 +94,57 @@ export const BulkyBookingPage: React.FC = () => {
       itemsSummary: summary,
       estimatedAmount: totalEstimated,
       isFee: true,
-      estimatedPoints: totalItems * 35,
+      estimatedPoints: totalItems * 30,
       estimatedWeightKg: totalItems * 22,
       hasElevator,
       remarks: remarks.trim() || undefined,
       photos,
     });
 
-    showToast('大件清运预约已提交！工作人员将尽快与您联系', 'success');
+    showToast('大件清运预约已提交', 'success');
     navigate({ name: 'tabs' });
     setActiveTab('orders');
   };
 
   return (
-    <div className="min-h-full bg-[#F4F8F6] pb-28">
+    <div className="min-h-full bg-[#F4F4F1]">
       <SubPageHeader title="大件垃圾预约清运" />
 
-      <div className="p-4 space-y-3.5">
-        {/* Top Tip */}
-        <div className="rounded-2xl bg-sky-50 border-l-4 border-sky-500 px-3.5 py-2.5 text-[12px] text-sky-900">
-          温馨提示：参考价透明公示，最终上门价格以回收企业现场核验为准。
+      <div className="p-3.5 space-y-3">
+        <div className="rounded-lg bg-[#FDF4EC] border-l-3 border-[#B45309] px-3 py-2 text-[12px] text-amber-950">
+          按南京大件垃圾规范收运标准明码标价，最终费用以师傅现场核验为准。
         </div>
 
         {/* Address */}
         <button
           onClick={() => navigate({ name: 'address_list', selectMode: true })}
-          className="w-full bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5 text-left flex items-center justify-between gap-3 active:scale-[0.99] transition"
+          className="w-full bg-white rounded-xl p-3.5 border border-[#E6E6E1] text-left flex items-center justify-between gap-3"
         >
           {currentAddr ? (
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-orange-50 text-orange-700">
+                <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-[#FDF4EC] text-[#B45309]">
                   清运地址
                 </span>
-                <span className="text-[14px] font-bold text-slate-900">
+                <span className="text-[14px] font-semibold text-zinc-900 tabular-nums">
                   {currentAddr.contactName} {currentAddr.phone}
                 </span>
               </div>
-              <p className="text-[12px] text-slate-500 mt-1 truncate">
+              <p className="text-[12px] text-zinc-500 mt-1 truncate">
                 {currentAddr.region} {currentAddr.community} {currentAddr.detail}
               </p>
             </div>
           ) : (
-            <span className="text-[14px] font-semibold text-rose-600">* 请选择回收地（必选）</span>
+            <span className="text-[14px] font-medium text-rose-700">* 请选择清运地址</span>
           )}
-          <MapPin className="w-5 h-5 text-orange-500 shrink-0" />
+          <MapPin className="w-4.5 h-4.5 text-[#B45309] shrink-0" />
         </button>
 
-        {/* Service Enterprise */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5 space-y-2.5">
-          <div className="flex items-center gap-1.5 text-[13px] font-bold text-slate-900">
-            <Building2 className="w-4 h-4 text-orange-500" />
-            <span>
-              <span className="text-rose-500">*</span> 服务企业
-            </span>
+        {/* Provider */}
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2">
+          <div className="flex items-center gap-1.5 text-[13px] font-semibold text-zinc-900">
+            <Building2 className="w-4 h-4 text-[#B45309]" />
+            <span>清运承运单位</span>
           </div>
           {BULKY_PROVIDERS.map((p) => {
             const active = providerId === p.id;
@@ -160,19 +152,19 @@ export const BulkyBookingPage: React.FC = () => {
               <button
                 key={p.id}
                 onClick={() => setProviderId(p.id)}
-                className={`w-full p-3 rounded-xl border text-left flex items-center justify-between transition ${
-                  active ? 'border-orange-400 bg-orange-50/50' : 'border-slate-100 bg-slate-50/70'
+                className={`w-full p-2.5 rounded-lg border text-left flex items-center justify-between transition ${
+                  active ? 'border-[#B45309] bg-[#FDF4EC]/60' : 'border-[#ECECE8] bg-[#FAFAF8]'
                 }`}
               >
                 <div>
-                  <div className="text-[13px] font-bold text-slate-900">{p.name}</div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">
-                    ★ {p.rating} · {p.badge} · 起步价 ¥{p.minOrder}
+                  <div className="text-[13px] font-semibold text-zinc-900">{p.name}</div>
+                  <div className="text-[11px] text-zinc-500 mt-0.5">
+                    评分 {p.rating} · {p.badge} · 起步 ¥{p.minOrder}
                   </div>
                 </div>
                 <div
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                    active ? 'border-orange-500 bg-orange-500 text-white' : 'border-slate-300'
+                  className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center shrink-0 ${
+                    active ? 'border-[#B45309] bg-[#B45309] text-white' : 'border-zinc-300'
                   }`}
                 >
                   {active && <Check className="w-3 h-3 stroke-[3]" />}
@@ -182,53 +174,48 @@ export const BulkyBookingPage: React.FC = () => {
           })}
         </div>
 
-        {/* Item Selector + Transparent Price Table Button */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-bold text-slate-900">
-              <span className="text-rose-500">*</span> 请选择大件物品
-            </span>
+        {/* Item Catalog + Price Table */}
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[13px] font-semibold text-zinc-900">选择大件物品</span>
             <button
               onClick={() => setShowPriceTable(true)}
-              className="inline-flex items-center gap-1 text-[12px] font-bold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-full active:scale-95 transition"
+              className="inline-flex items-center gap-1 text-[12px] font-medium text-[#1D6F5A] bg-[#EDF5F2] px-2.5 py-1 rounded-lg"
             >
               <ReceiptText className="w-3.5 h-3.5" />
-              <span>价格表&gt;&gt;&gt;</span>
+              <span>参考价格表</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 gap-2">
+          <div className="divide-y divide-[#F0F0EC]">
             {BULKY_ITEMS_CATALOG.map((item) => {
               const qty = counts[item.id] ?? 0;
               return (
-                <div
-                  key={item.id}
-                  className={`p-3 rounded-xl border flex items-center justify-between transition ${
-                    qty > 0 ? 'border-orange-300 bg-orange-50/35' : 'border-slate-100 bg-slate-50/50'
-                  }`}
-                >
+                <div key={item.id} className="py-2.5 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-2xl">{item.icon}</span>
+                    <div className="w-8 h-8 rounded-lg bg-[#F4F4F1] text-zinc-700 flex items-center justify-center">
+                      <ItemIcon id={item.id} className="w-4 h-4" />
+                    </div>
                     <div>
-                      <div className="text-[13px] font-bold text-slate-900">{item.name}</div>
-                      <div className="text-[11px] text-slate-500">
-                        <span className="font-bold text-orange-600 tabular-nums">¥{item.unitPrice}/{item.unit}</span> · {item.note}
+                      <div className="text-[13px] font-medium text-zinc-900">{item.name}</div>
+                      <div className="text-[11px] text-zinc-500">
+                        <span className="font-semibold text-[#B45309] tabular-nums">¥{item.unitPrice}/{item.unit}</span> · {item.note}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => changeCount(item.id, -1)}
-                      className="w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 active:scale-90 transition"
+                      className="w-7 h-7 rounded-lg bg-[#F4F4F1] flex items-center justify-center text-zinc-600"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="w-6 text-center text-[13px] font-bold text-slate-900 tabular-nums">
+                    <span className="w-6 text-center text-[13px] font-semibold text-zinc-900 tabular-nums">
                       {qty}
                     </span>
                     <button
                       onClick={() => changeCount(item.id, 1)}
-                      className="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center active:scale-90 transition"
+                      className="w-7 h-7 rounded-lg bg-[#B45309] text-white flex items-center justify-center"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -239,13 +226,11 @@ export const BulkyBookingPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Elevator Toggle */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5 space-y-3">
+        {/* Elevator & Time */}
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] font-bold text-slate-900">
-              <span className="text-rose-500">*</span> 是否有电梯
-            </span>
-            <div className="flex items-center gap-3">
+            <span className="text-[13px] font-semibold text-zinc-900">楼栋电梯情况</span>
+            <div className="flex items-center gap-2">
               {[
                 { val: true, label: '有电梯' },
                 { val: false, label: '无电梯' },
@@ -253,44 +238,37 @@ export const BulkyBookingPage: React.FC = () => {
                 <button
                   key={String(opt.val)}
                   onClick={() => setHasElevator(opt.val)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold border transition ${
+                  className={`px-3 py-1.5 rounded-lg text-[12px] font-medium border transition ${
                     hasElevator === opt.val
-                      ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                      : 'border-slate-200 text-slate-500'
+                      ? 'border-[#1D6F5A] bg-[#EDF5F2] text-[#1D6F5A]'
+                      : 'border-[#E6E6E1] text-zinc-500'
                   }`}
                 >
-                  <span
-                    className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                      hasElevator === opt.val ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300'
-                    }`}
-                  >
-                    {hasElevator === opt.val && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                  </span>
-                  <span>{opt.label}</span>
+                  {opt.label}
                 </button>
               ))}
             </div>
           </div>
 
           {!hasElevator && (
-            <div className="rounded-xl bg-amber-50 p-3 flex items-center justify-between">
-              <div className="text-[12px] text-amber-900">
-                <div className="font-semibold">所在楼层（步梯搬运费 ¥15/层）</div>
-                <div className="text-[11px] text-amber-700">当前加收 ¥{stairFee}</div>
+            <div className="rounded-lg bg-[#FDF4EC] px-3 py-2.5 flex items-center justify-between">
+              <div className="text-[12px] text-amber-950">
+                <div className="font-medium">步梯搬运楼层（¥15/层）</div>
+                <div className="text-[11px] text-[#B45309] tabular-nums">当前搬运费 ¥{stairFee}</div>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setFloor((f) => Math.max(1, f - 1))}
-                  className="w-7 h-7 rounded-full bg-white border border-amber-200 flex items-center justify-center"
+                  className="w-7 h-7 rounded-lg bg-white border border-amber-200 flex items-center justify-center"
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="w-10 text-center font-bold text-[13px] text-amber-900 tabular-nums">
+                <span className="w-10 text-center font-semibold text-[13px] text-amber-950 tabular-nums">
                   {floor}楼
                 </span>
                 <button
                   onClick={() => setFloor((f) => Math.min(8, f + 1))}
-                  className="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center"
+                  className="w-7 h-7 rounded-lg bg-[#B45309] text-white flex items-center justify-center"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -298,18 +276,17 @@ export const BulkyBookingPage: React.FC = () => {
             </div>
           )}
 
-          {/* Pickup time */}
-          <div className="pt-2 border-t border-slate-100">
-            <div className="text-[12px] font-semibold text-slate-600 mb-2">期望上门时间</div>
+          <div className="pt-2 border-t border-[#F0F0EC]">
+            <div className="text-[12px] font-medium text-zinc-600 mb-2">期望清运时段</div>
             <div className="grid grid-cols-2 gap-2">
-              {['明天 09:00-11:00', '明天 14:00-16:00', '后天 09:00-11:00', '周末全天均可'].map((slot) => (
+              {['明天 09:00-11:00', '明天 14:00-16:00', '后天 09:00-11:00', '周末全天'].map((slot) => (
                 <button
                   key={slot}
                   onClick={() => setTimeSlot(slot)}
-                  className={`py-2 rounded-xl text-[12px] font-semibold border transition ${
+                  className={`py-2 rounded-lg text-[12px] font-medium border transition ${
                     timeSlot === slot
-                      ? 'border-orange-400 bg-orange-50 text-orange-800'
-                      : 'border-slate-100 bg-slate-50 text-slate-600'
+                      ? 'border-[#B45309] bg-[#FDF4EC] text-[#B45309]'
+                      : 'border-[#ECECE8] bg-[#FAFAF8] text-zinc-600'
                   }`}
                 >
                   {slot}
@@ -319,105 +296,84 @@ export const BulkyBookingPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Notice */}
-        <div className="rounded-2xl bg-white border border-rose-100 p-3.5 flex items-start gap-2 text-[12px]">
-          <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-          <p className="text-slate-700 leading-relaxed">
-            温馨提示：下单完成后由工作人员与您联系完成上门清运，
-            <span className="text-rose-600 font-semibold">实际价格请以回收企业现场核验金额为准。</span>
-          </p>
-        </div>
-
-        {/* Upload Photos (up to 4) */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[13px] font-bold text-slate-900">
-              <span className="text-rose-500">*</span> 上传照片（最多添加4张）
-            </span>
-            <button
-              onClick={handleAddSamplePhoto}
-              className="text-[11px] font-semibold text-emerald-600 hover:underline"
-            >
-              + 一键填入示例图
-            </button>
-          </div>
-          <div className="flex items-center gap-2.5 flex-wrap">
+        {/* Photos & Remarks */}
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2.5">
+          <div className="text-[13px] font-semibold text-zinc-900">现场照片（最多 4 张）与备注</div>
+          <div className="flex items-center gap-2 flex-wrap">
             {photos.map((src, i) => (
-              <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200">
+              <div key={i} className="relative w-15 h-15 rounded-lg overflow-hidden border border-[#E6E6E1]">
                 <img src={src} alt="大件照片" className="w-full h-full object-cover" />
                 <button
                   onClick={() => setPhotos((prev) => prev.filter((_, idx) => idx !== i))}
-                  className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-slate-900/70 text-white flex items-center justify-center"
+                  className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-zinc-900/75 text-white flex items-center justify-center"
                 >
                   <X className="w-2.5 h-2.5" />
                 </button>
               </div>
             ))}
             {photos.length < 4 && (
-              <label className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:border-orange-400 hover:text-orange-600 transition">
-                <Camera className="w-5 h-5" />
-                <span className="text-[10px] mt-0.5">{photos.length}/4</span>
+              <label className="w-15 h-15 rounded-lg border border-dashed border-zinc-300 bg-[#FAFAF8] flex flex-col items-center justify-center text-zinc-400 cursor-pointer">
+                <Camera className="w-4.5 h-4.5" />
+                <span className="text-[10px] mt-0.5 tabular-nums">{photos.length}/4</span>
                 <input type="file" accept="image/*" multiple onChange={handlePhotoAdd} className="hidden" />
               </label>
             )}
           </div>
-        </div>
-
-        {/* Remarks */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5">
-          <div className="text-[13px] font-bold text-slate-900 mb-2">备注信息</div>
           <div className="relative">
             <textarea
               maxLength={200}
               rows={3}
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
-              placeholder="请备注物品尺寸、是否需要现场拆解、小区货车进出要求等详细信息"
-              className="w-full rounded-xl bg-slate-50 border border-slate-200/80 p-3 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-orange-400 resize-none"
+              placeholder="请备注物品尺寸、是否需要现场拆解、小区货车进出时段等"
+              className="w-full rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] p-2.5 text-[13px] text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:border-[#B45309] resize-none"
             />
-            <span className="absolute right-3 bottom-2 text-[11px] text-slate-400 tabular-nums">
+            <span className="absolute right-2.5 bottom-2 text-[10.5px] text-zinc-400 tabular-nums">
               {remarks.length}/200
             </span>
           </div>
         </div>
+
+        <div className="flex items-start gap-1.5 px-1 text-[11px] text-zinc-500">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-zinc-400" />
+          <span>下单后工作人员将在 2 小时内致电确认上门细节，清运完成同步出具电子联单。</span>
+        </div>
       </div>
 
-      {/* Bottom Sticky Submit */}
-      <div className="sticky bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 py-3 flex items-center justify-between gap-3 z-30">
+      {/* Bottom Submit */}
+      <div className="sticky bottom-0 inset-x-0 bg-white border-t border-[#E6E6E1] px-4 py-3 flex items-center justify-between gap-3 z-30">
         <div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-[11px] text-slate-500">参考清运费</span>
-            <span className="text-xl font-extrabold text-orange-600 tabular-nums">
-              ¥{totalEstimated}
-            </span>
+            <span className="text-[11px] text-zinc-500">参考清运费</span>
+            <span className="text-lg font-bold text-[#B45309] tabular-nums">¥{totalEstimated}</span>
           </div>
-          <div className="text-[11px] text-slate-400">
-            已选 {totalItems} 件 · 完成后赠 +{totalItems * 35} 积分
+          <div className="text-[11px] text-zinc-400 tabular-nums">
+            已选 {totalItems} 件 · 完成后得 +{totalItems * 30} 积分
           </div>
         </div>
         <button
           onClick={handleSubmit}
-          className="px-7 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-[14px] shadow-lg shadow-orange-500/25 active:scale-95 transition"
+          className="px-6 py-2.5 rounded-lg bg-[#B45309] active:opacity-90 text-white font-semibold text-[14px]"
         >
-          预约下单
+          提交预约
         </button>
       </div>
 
-      {/* Price Table Modal */}
+      {/* Reference Price Table Modal */}
       {showPriceTable && (
         <div
-          className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-[2px] flex items-end sm:items-center justify-center animate-fade-in"
+          className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center animate-fade-in"
           onClick={() => setShowPriceTable(false)}
         >
           <div
-            className="w-full max-w-[430px] max-h-[82vh] bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col animate-slide-up"
+            className="w-full max-w-[414px] max-h-[80vh] bg-white rounded-t-2xl sm:rounded-2xl overflow-hidden flex flex-col animate-slide-up"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-[16px] font-bold text-slate-900">北京市大件垃圾清运参考价格表</h3>
+            <div className="px-4 py-3.5 border-b border-[#E6E6E1] flex items-center justify-between">
+              <h3 className="text-[15px] font-semibold text-zinc-900">南京市大件垃圾清运参考价目表</h3>
               <button
                 onClick={() => setShowPriceTable(false)}
-                className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500"
+                className="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-500"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -425,28 +381,26 @@ export const BulkyBookingPage: React.FC = () => {
             <div className="p-4 overflow-y-auto">
               <table className="w-full text-left text-[12px]">
                 <thead>
-                  <tr className="border-b border-slate-200 text-slate-500">
-                    <th className="py-2 font-semibold">物品名称</th>
-                    <th className="py-2 font-semibold">参考单价</th>
-                    <th className="py-2 font-semibold">服务说明</th>
+                  <tr className="border-b border-[#E6E6E1] text-zinc-500">
+                    <th className="py-2 font-medium">物品名称</th>
+                    <th className="py-2 font-medium">参考单价</th>
+                    <th className="py-2 font-medium">说明</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#F0F0EC]">
                   {BULKY_ITEMS_CATALOG.map((item) => (
                     <tr key={item.id}>
-                      <td className="py-2.5 font-semibold text-slate-900">
-                        {item.icon} {item.name}
-                      </td>
-                      <td className="py-2.5 font-bold text-orange-600 tabular-nums">
+                      <td className="py-2.5 font-medium text-zinc-900">{item.name}</td>
+                      <td className="py-2.5 font-semibold text-[#B45309] tabular-nums">
                         ¥{item.unitPrice}/{item.unit}
                       </td>
-                      <td className="py-2.5 text-slate-500">{item.note}</td>
+                      <td className="py-2.5 text-zinc-500">{item.note}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <p className="mt-4 text-[11px] text-slate-400 leading-relaxed">
-                * 以上价格包含北京市正规资源化拆解处置费及楼下装车费；无电梯楼栋按15元/层加收人工搬运费。
+              <p className="mt-3 text-[11px] text-zinc-400 leading-relaxed">
+                * 以上价格含楼下装车与正规大件拆解处置费；老旧无电梯小区按 15 元/层加收人工搬运费。
               </p>
             </div>
           </div>

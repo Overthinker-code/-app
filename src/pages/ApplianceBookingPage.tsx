@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { MapPin, Check, Sparkles, ShieldCheck, Wrench } from 'lucide-react';
+import { MapPin, Check, ShieldCheck, Wrench } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SubPageHeader } from '../components/Layout';
 import { APPLIANCE_CATALOG, APPLIANCE_PROVIDERS } from '../data/mockData';
+import { ItemIcon } from '../components/NanjingVisuals';
 
 export const ApplianceBookingPage: React.FC<{ initialProvider?: string }> = ({
-  initialProvider = 'jd',
+  initialProvider = 'suning',
 }) => {
   const { addresses, selectedAddressId, navigate, createOrder, setActiveTab, showToast } = useApp();
   const currentAddr = addresses.find((a) => a.id === selectedAddressId) ?? addresses[0];
@@ -22,21 +23,21 @@ export const ApplianceBookingPage: React.FC<{ initialProvider?: string }> = ({
 
   const conditionFactor = condition === 'good' ? 1.15 : condition === 'minor' ? 0.85 : 0.6;
   const conditionLabel =
-    condition === 'good' ? '完好可用' : condition === 'minor' ? '轻微故障/老化' : '无法开机/废旧机';
+    condition === 'good' ? '完好可用' : condition === 'minor' ? '轻微故障' : '无法开机';
 
   const baseValuation = Math.round(appliance.basePrice * conditionFactor);
   const subsidyBonus = provider.id === 'jd' ? Math.round(baseValuation * 0.1) : 15;
   const totalPayout = baseValuation + subsidyBonus;
-  const points = provider.id === 'crra' ? 240 : 160;
+  const points = provider.id === 'crra' ? 220 : 150;
 
   const handleSubmit = () => {
     if (!currentAddr) {
-      showToast('请先选择上门回收地址', 'warning');
+      showToast('请先选择上门地址', 'warning');
       return;
     }
     createOrder({
       category: 'appliance',
-      categoryLabel: '家电回收预约',
+      categoryLabel: '废旧家电回收',
       status: 'pending',
       appointmentTime: timeSlot,
       addressText: `${currentAddr.region}${currentAddr.street} ${currentAddr.community} ${currentAddr.detail}`,
@@ -48,21 +49,21 @@ export const ApplianceBookingPage: React.FC<{ initialProvider?: string }> = ({
       isFee: false,
       estimatedPoints: points,
       estimatedWeightKg: appliance.weightKg,
-      remarks: `${needUninstall ? '需免费上门拆机；' : ''}${remarks.trim()}`.replace(/；$/, '') || undefined,
+      remarks: `${needUninstall ? '需上门拆机；' : ''}${remarks.trim()}`.replace(/；$/, '') || undefined,
     });
-    showToast(`已成功预约${provider.name}上门回收！预估返现 ¥${totalPayout}`, 'success');
+    showToast(`已预约${provider.name}，参考估价 ¥${totalPayout}`, 'success');
     navigate({ name: 'tabs' });
     setActiveTab('orders');
   };
 
   return (
-    <div className="min-h-full bg-[#F4F8F6] pb-28">
-      <SubPageHeader title="家电回收预约" />
+    <div className="min-h-full bg-[#F4F4F1]">
+      <SubPageHeader title="废旧家电回收" />
 
-      <div className="p-4 space-y-3.5">
-        {/* Provider Switcher */}
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-emerald-950/5 space-y-2.5">
-          <div className="text-[13px] font-bold text-slate-900">合作家电回收企业</div>
+      <div className="p-3.5 space-y-3">
+        {/* Provider Selector */}
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2.5">
+          <div className="text-[13px] font-semibold text-zinc-900">南京合作家电回收商</div>
           <div className="grid grid-cols-3 gap-2">
             {APPLIANCE_PROVIDERS.map((p) => {
               const active = p.id === providerId;
@@ -70,161 +71,161 @@ export const ApplianceBookingPage: React.FC<{ initialProvider?: string }> = ({
                 <button
                   key={p.id}
                   onClick={() => setProviderId(p.id)}
-                  className={`p-2.5 rounded-2xl border-2 text-center transition ${
-                    active ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-slate-50'
+                  className={`p-2.5 rounded-lg border text-center transition ${
+                    active ? 'border-[#1D6F5A] bg-[#EDF5F2]/60' : 'border-[#ECECE8] bg-[#FAFAF8]'
                   }`}
                 >
                   <div
-                    className="w-9 h-9 mx-auto rounded-xl text-white font-bold text-xs flex items-center justify-center shadow-sm"
+                    className="w-8 h-8 mx-auto rounded-lg text-white font-bold text-xs flex items-center justify-center"
                     style={{ backgroundColor: p.accent }}
                   >
                     {p.name.slice(0, 2)}
                   </div>
-                  <div className="text-[12px] font-bold text-slate-900 mt-1.5">{p.name}</div>
-                  <div className="text-[10px] text-emerald-700">{p.tag}</div>
+                  <div className="text-[12px] font-semibold text-zinc-900 mt-1.5 truncate">
+                    {p.name.replace('（南京站）', '')}
+                  </div>
+                  <div className="text-[10px] text-zinc-500">{p.tag}</div>
                 </button>
               );
             })}
           </div>
-          <div className="flex flex-wrap gap-1.5 pt-1">
+          <div className="flex flex-wrap gap-1.5">
             {provider.features.map((f) => (
               <span
                 key={f}
-                className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-medium inline-flex items-center gap-1"
+                className="text-[11px] px-2 py-0.5 rounded bg-[#F4F4F1] text-zinc-600 inline-flex items-center gap-1"
               >
-                <Check className="w-3 h-3" /> {f}
+                <Check className="w-3 h-3 text-[#1D6F5A]" /> {f}
               </span>
             ))}
           </div>
         </div>
 
-        {/* Appliance Grid */}
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-emerald-950/5 space-y-3">
-          <div className="text-[13px] font-bold text-slate-900">
-            <span className="text-rose-500">*</span> 选择回收家电品类
-          </div>
-          <div className="grid grid-cols-2 gap-2.5">
+        {/* Appliance Catalog */}
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2.5">
+          <div className="text-[13px] font-semibold text-zinc-900">选择回收品类</div>
+          <div className="grid grid-cols-2 gap-2">
             {APPLIANCE_CATALOG.map((item) => {
               const active = item.id === selectedApplianceId;
               return (
                 <button
                   key={item.id}
                   onClick={() => setSelectedApplianceId(item.id)}
-                  className={`p-3 rounded-2xl border text-left transition ${
-                    active
-                      ? 'border-emerald-500 bg-emerald-50/60 shadow-sm'
-                      : 'border-slate-100 bg-slate-50/70 hover:border-slate-200'
+                  className={`p-2.5 rounded-lg border text-left transition ${
+                    active ? 'border-[#1D6F5A] bg-[#EDF5F2]/50' : 'border-[#ECECE8] bg-[#FAFAF8]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl">{item.icon}</span>
-                    <span className="text-[11px] font-bold text-emerald-700 tabular-nums">
+                    <div className="w-7 h-7 rounded-md bg-white border border-[#E6E6E1] text-zinc-700 flex items-center justify-center">
+                      <ItemIcon id={item.id} className="w-4 h-4" />
+                    </div>
+                    <span className="text-[11px] font-semibold text-[#1D6F5A] tabular-nums">
                       约¥{item.basePrice}起
                     </span>
                   </div>
-                  <div className="text-[13px] font-bold text-slate-900 mt-1.5">{item.name}</div>
-                  <div className="text-[10px] text-slate-500 truncate mt-0.5">{item.desc}</div>
+                  <div className="text-[13px] font-semibold text-zinc-900 mt-2">{item.name}</div>
+                  <div className="text-[10.5px] text-zinc-500 truncate mt-0.5">{item.desc}</div>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Machine Condition */}
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-emerald-950/5 space-y-3">
-          <div className="text-[13px] font-bold text-slate-900">家电当前状态</div>
+        {/* Condition & Uninstall */}
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-3">
+          <div className="text-[13px] font-semibold text-zinc-900">机器当前成色</div>
           <div className="grid grid-cols-3 gap-2">
             {[
-              { id: 'good', label: '完好可用', sub: '估价上浮15%' },
-              { id: 'minor', label: '轻微故障', sub: '外观完整' },
-              { id: 'broken', label: '无法开机', sub: '正规拆解补贴' },
+              { id: 'good', label: '完好可用', sub: '估价上浮' },
+              { id: 'minor', label: '轻微故障', sub: '外观完好' },
+              { id: 'broken', label: '无法开机', sub: '残值拆解' },
             ].map((c) => (
               <button
                 key={c.id}
                 onClick={() => setCondition(c.id as typeof condition)}
-                className={`p-2.5 rounded-xl border text-center transition ${
+                className={`p-2 rounded-lg border text-center transition ${
                   condition === c.id
-                    ? 'border-emerald-500 bg-emerald-50 text-emerald-900'
-                    : 'border-slate-100 bg-slate-50 text-slate-600'
+                    ? 'border-[#1D6F5A] bg-[#EDF5F2] text-zinc-900'
+                    : 'border-[#ECECE8] bg-[#FAFAF8] text-zinc-600'
                 }`}
               >
-                <div className="text-[12px] font-bold">{c.label}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">{c.sub}</div>
+                <div className="text-[12.5px] font-semibold">{c.label}</div>
+                <div className="text-[10.5px] text-zinc-400 mt-0.5">{c.sub}</div>
               </button>
             ))}
           </div>
 
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-800">
-              <Wrench className="w-4 h-4 text-emerald-600" />
+          <div className="pt-2.5 border-t border-[#F0F0EC] flex items-center justify-between">
+            <div className="flex items-center gap-2 text-[13px] font-medium text-zinc-800">
+              <Wrench className="w-4 h-4 text-[#1D6F5A]" />
               <span>需要工程师免费拆机搬运</span>
             </div>
             <button
               onClick={() => setNeedUninstall((v) => !v)}
-              className={`w-11 h-6 rounded-full transition-colors p-0.5 ${
-                needUninstall ? 'bg-emerald-500' : 'bg-slate-300'
+              className={`w-10 h-5.5 rounded-full transition-colors p-0.5 ${
+                needUninstall ? 'bg-[#1D6F5A]' : 'bg-zinc-300'
               }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-white shadow transition-transform ${
-                  needUninstall ? 'translate-x-5' : 'translate-x-0'
+                className={`w-4.5 h-4.5 rounded-full bg-white shadow transition-transform ${
+                  needUninstall ? 'translate-x-4.5' : 'translate-x-0'
                 }`}
               />
             </button>
           </div>
         </div>
 
-        {/* Live Valuation Breakdown */}
-        <div className="rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-600 p-4 text-white shadow-md">
+        {/* Valuation Card */}
+        <div className="rounded-xl bg-[#1D6F5A] p-4 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[11px] text-emerald-100">智能即时估价（含绿色补贴）</div>
-              <div className="text-3xl font-black tabular-nums mt-1">¥ {totalPayout}</div>
+              <div className="text-[11px] text-white/75">在线参考估价（含换新补贴）</div>
+              <div className="text-2xl font-bold tabular-nums mt-1">¥ {totalPayout}</div>
             </div>
-            <div className="text-right text-[11px] space-y-1 text-emerald-100">
-              <div>基础回收价：¥{baseValuation}</div>
-              <div>环保加价补贴：+¥{subsidyBonus}</div>
-              <div className="text-amber-300 font-bold">同步奖励 +{points} 积分</div>
+            <div className="text-right text-[11px] space-y-0.5 text-white/80 tabular-nums">
+              <div>基础残值：¥{baseValuation}</div>
+              <div>拆旧补贴：+¥{subsidyBonus}</div>
+              <div className="text-white font-semibold">同步计入 +{points} 积分</div>
             </div>
           </div>
-          <div className="mt-3 pt-2.5 border-t border-white/15 flex items-center gap-1.5 text-[11px] text-emerald-50">
-            <ShieldCheck className="w-4 h-4 text-emerald-200 shrink-0" />
-            <span>当面质检 · 即时打款至微信/银行卡 · 正规无害化绿色拆解</span>
+          <div className="mt-3 pt-2.5 border-t border-white/15 flex items-center gap-1.5 text-[11px] text-white/80">
+            <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+            <span>当面质检即时结算 · 交由江苏合规拆解企业处理</span>
           </div>
         </div>
 
         {/* Address & Time */}
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-emerald-950/5 space-y-3">
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-3">
           <button
             onClick={() => navigate({ name: 'address_list', selectMode: true })}
-            className="w-full flex items-center justify-between text-left pb-3 border-b border-slate-100"
+            className="w-full flex items-center justify-between text-left pb-3 border-b border-[#F0F0EC]"
           >
             {currentAddr ? (
               <div className="min-w-0">
-                <div className="text-[13px] font-bold text-slate-900">
+                <div className="text-[13.5px] font-semibold text-zinc-900 tabular-nums">
                   {currentAddr.contactName} {currentAddr.phone}
                 </div>
-                <div className="text-[12px] text-slate-500 truncate mt-0.5">
+                <div className="text-[12px] text-zinc-500 truncate mt-0.5">
                   {currentAddr.region} {currentAddr.community} {currentAddr.detail}
                 </div>
               </div>
             ) : (
-              <span className="text-rose-600 font-semibold text-[13px]">* 请选择上门地址</span>
+              <span className="text-rose-700 font-medium text-[13px]">* 请选择上门地址</span>
             )}
-            <MapPin className="w-5 h-5 text-emerald-600 shrink-0" />
+            <MapPin className="w-4.5 h-4.5 text-[#1D6F5A] shrink-0" />
           </button>
 
           <div>
-            <div className="text-[12px] font-semibold text-slate-600 mb-2">预约上门时段</div>
+            <div className="text-[12px] font-medium text-zinc-600 mb-2">期望上门时段</div>
             <div className="grid grid-cols-2 gap-2">
               {['明天 10:00-12:00', '明天 14:00-16:00', '后天 10:00-12:00', '周末上午'].map((slot) => (
                 <button
                   key={slot}
                   onClick={() => setTimeSlot(slot)}
-                  className={`py-2 rounded-xl text-[12px] font-semibold border transition ${
+                  className={`py-2 rounded-lg text-[12px] font-medium border transition ${
                     timeSlot === slot
-                      ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
-                      : 'border-slate-100 bg-slate-50 text-slate-600'
+                      ? 'border-[#1D6F5A] bg-[#EDF5F2] text-[#1D6F5A]'
+                      : 'border-[#ECECE8] bg-[#FAFAF8] text-zinc-600'
                   }`}
                 >
                   {slot}
@@ -237,26 +238,25 @@ export const ApplianceBookingPage: React.FC<{ initialProvider?: string }> = ({
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
             placeholder="选填：如空调外机位置、品牌型号等备注"
-            className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-[13px]"
+            className="w-full rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] px-3 py-2 text-[13px]"
           />
         </div>
       </div>
 
       {/* Bottom Sticky Submit */}
-      <div className="sticky bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 py-3 flex items-center justify-between gap-3 z-30">
+      <div className="sticky bottom-0 inset-x-0 bg-white border-t border-[#E6E6E1] px-4 py-3 flex items-center justify-between gap-3 z-30">
         <div>
-          <div className="text-[11px] text-slate-500">预计到手回收款</div>
-          <div className="text-xl font-extrabold text-emerald-600 tabular-nums">
+          <div className="text-[11px] text-zinc-500">参考回收价</div>
+          <div className="text-lg font-bold text-[#1D6F5A] tabular-nums">
             ¥{totalPayout}
-            <span className="text-[11px] font-medium text-amber-600 ml-1.5">+{points}分</span>
+            <span className="text-[11px] font-normal text-zinc-500 ml-1.5">+{points}分</span>
           </div>
         </div>
         <button
           onClick={handleSubmit}
-          className="px-7 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-[14px] shadow-lg shadow-emerald-600/25 flex items-center gap-1 active:scale-95 transition"
+          className="px-6 py-2.5 rounded-lg bg-[#1D6F5A] active:bg-[#175C4A] text-white font-semibold text-[14px]"
         >
-          <Sparkles className="w-4 h-4" />
-          <span>免费上门回收</span>
+          预约免费上门
         </button>
       </div>
     </div>

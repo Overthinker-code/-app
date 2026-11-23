@@ -10,21 +10,22 @@ export interface UserProfile {
   gender: 'male' | 'female' | 'unset';
   birthday: string;
   birthdayLocked: boolean;
+  district: string;
   community: string;
   points: number;
   carbonSavedKg: number;
   totalCashEarned: number;
-  avatarId: string;
+  quizClaimed: boolean;
 }
 
 export interface Address {
   id: string;
   contactName: string;
   phone: string;
-  region: string; // e.g., 北京市朝阳区
-  street: string; // e.g., 望京街道
-  community: string; // e.g., 丽岛花园
-  detail: string; // e.g., 3号楼2单元802室
+  region: string;    // 南京市玄武区
+  street: string;    // 孝陵卫街道
+  community: string; // 银城东苑
+  detail: string;    // 18幢2单元501室
   isDefault: boolean;
 }
 
@@ -32,16 +33,17 @@ export interface StationPoint {
   id: string;
   type: 'smart_machine' | 'fixed_station' | 'sorting_center';
   name: string;
+  district: string;
   address: string;
+  lat: number;
+  lng: number;
   distanceMeters: number;
   hours: string;
   status: 'online' | 'busy' | 'maintenance';
-  capacityPercent: number; // 0-100 full
+  capacityPercent: number;
   categories: string[];
   phone?: string;
   priceHighlight: string;
-  xPercent: number; // for interactive visual map
-  yPercent: number;
 }
 
 export interface OrderTimelineItem {
@@ -54,6 +56,7 @@ export interface OrderTimelineItem {
 export interface RecycleOrder {
   id: string;
   orderNo: string;
+  manifestNo?: string; // 南京清运电子联单编号
   category: OrderCategory;
   categoryLabel: string;
   status: OrderStatus;
@@ -64,8 +67,8 @@ export interface RecycleOrder {
   contactPhone: string;
   providerName: string;
   itemsSummary: string;
-  estimatedAmount: number; // positive = payout to user, negative = service fee paid by user
-  isFee: boolean; // true for paid hauling (bulky/renovation), false for cash payout (recyclable/appliance)
+  estimatedAmount: number;
+  isFee: boolean;
   estimatedPoints: number;
   estimatedWeightKg: number;
   remarks?: string;
@@ -86,12 +89,13 @@ export interface DisposalUnit {
   address: string;
   manager: string;
   phone: string;
+  licenseNo: string;
   creditGrade: 'AAA' | 'AA' | 'A';
   rating: number;
   orderCount: number;
   distanceKm: number;
   pricing: {
-    perBag: number; // 90x120cm standard bag
+    perBag: number;
     perCubicMeter: number;
     minCharge: number;
     note: string;
@@ -111,9 +115,19 @@ export interface KnowledgeArticle {
 
 export interface WasteSearchItem {
   name: string;
+  aliases?: string;
   category: '可回收物' | '厨余垃圾' | '有害垃圾' | '其他垃圾' | '大件垃圾' | '装修垃圾' | '废旧家电';
   tip: string;
   actionRoute?: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  item: string;
+  context: string;
+  options: ('可回收物' | '厨余垃圾' | '有害垃圾' | '其他垃圾')[];
+  answer: '可回收物' | '厨余垃圾' | '有害垃圾' | '其他垃圾';
+  explanation: string;
 }
 
 export type AppRoute =
@@ -127,8 +141,8 @@ export type AppRoute =
   | { name: 'renovation_units' }
   | { name: 'appliance_booking'; initialProvider?: string }
   | { name: 'profile_info' }
-  | { name: 'address_list'; selectMode?: boolean; returnTo?: AppRoute }
+  | { name: 'address_list'; selectMode?: boolean }
   | { name: 'address_edit'; editId?: string }
-  | { name: 'usage_guide' }
+  | { name: 'usage_guide'; initialQuery?: string }
   | { name: 'user_agreement' }
   | { name: 'points_mall' };

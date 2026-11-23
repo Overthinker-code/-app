@@ -10,7 +10,6 @@ import {
   Check,
   Camera,
   AlertCircle,
-  Sparkles,
   Building2,
   Package,
   Store,
@@ -18,94 +17,91 @@ import {
   CalendarClock,
   Plus,
   Minus,
+  ChevronRight,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SubPageHeader } from '../components/Layout';
 import {
   DAILY_MARKET_PRICES,
+  NANJING_COMMUNITIES,
   RECYCLABLE_PROVIDERS,
   STATION_POINTS,
 } from '../data/mockData';
-import { EmptyInboxIllustration } from '../components/ServiceIllustrations';
+import { ItemIcon } from '../components/NanjingVisuals';
+import { NanjingMap } from '../components/NanjingMap';
 
-/* ===================== 1. 可回收物交投总览页 ===================== */
+/* ===================== 1. 可回收物交投总览 ===================== */
 export const RecyclablesHubPage: React.FC = () => {
   const { navigate } = useApp();
 
   const channels = [
     {
-      title: '智能回收机',
-      subtitle: '24h 扫码开箱 · 自动称重秒返现',
-      desc: '具备“高低值统收、自动计量、实时返现、数据联网”功能，居民可扫码交投废纸、金属、塑料、旧衣物等可回收物，并获得现金与环保积分奖励。',
-      btnText: '附近智能回收机',
-      accentText: 'text-emerald-700',
-      accentBg: 'bg-emerald-50 border-emerald-200/70',
-      btnCls: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20',
+      title: '智能回收柜',
+      subtitle: '24小时扫码开箱 · 称重即时入账',
+      desc: '高低值统收、自动称重计量、关门即结款。支持废纸、塑料瓶、金属、旧衣物等日常交投。',
+      btnText: '查看附近回收柜',
       icon: Package,
       onClick: () => navigate({ name: 'nearby_stations', stationType: 'smart_machine' }),
     },
     {
       title: '固定交投点',
-      subtitle: '社区专人值守 · 现场称重结算',
-      desc: '是指以人工定时值守回收的形式，在小区、社区设立的便于交投可回收物的场所，面向居民提供全品类可回收物便民回收服务。',
-      btnText: '附近固定交投点',
-      accentText: 'text-sky-700',
-      accentBg: 'bg-sky-50 border-sky-200/70',
-      btnCls: 'bg-sky-600 hover:bg-sky-700 text-white shadow-sky-600/20',
+      subtitle: '社区专人值守 · 现场复秤结款',
+      desc: '设于南京各小区及社区广场的定时值守交投点，支持全品类回收与玻璃瓶、泡沫箱等低值物代收。',
+      btnText: '查看固定交投点',
       icon: Store,
       onClick: () => navigate({ name: 'nearby_stations', stationType: 'fixed_station' }),
     },
     {
       title: '中转站（分拣中心）',
-      subtitle: '大宗交投直收 · 规范分选打包',
-      desc: '是对可回收物进行集中回收、存储，并具有分选、打包、转运等功能的回收场所，亦面向居民与商户提供大宗可回收物直收服务。',
-      btnText: '附近回收站(中心)',
-      accentText: 'text-orange-700',
-      accentBg: 'bg-orange-50 border-orange-200/70',
-      btnCls: 'bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20',
+      subtitle: '大宗纸箱金属 · 分拣直收价',
+      desc: '面向居民与沿街商户提供集中交投、规范打包与转运服务，50kg 以上大宗废品享分拣直收价。',
+      btnText: '查看分拣中心',
       icon: Warehouse,
       onClick: () => navigate({ name: 'nearby_stations', stationType: 'sorting_center' }),
     },
     {
-      title: '预约交投（上门回收）',
-      subtitle: '敬老助残关怀 · 满5公斤免费上门',
-      desc: '针对年长、行动不便人士或家有大宗纸箱/废品的居民提供预约上门回收服务，回收物总重量建议大于5公斤，透明称重即时结款。',
-      btnText: '去预约',
-      accentText: 'text-teal-700',
-      accentBg: 'bg-teal-50 border-teal-200/70',
-      btnCls: 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-emerald-600/20',
+      title: '预约上门回收',
+      subtitle: '满 5 公斤预约 · 支持敬老助搬',
+      desc: '针对家中囤积大宗纸箱旧物，以及高龄或行动不便居民提供免费预约上门称重服务。',
+      btnText: '预约上门',
       icon: CalendarClock,
+      primary: true,
       onClick: () => navigate({ name: 'recyclables_booking' }),
     },
   ];
 
   return (
-    <div className="min-h-full bg-gradient-to-b from-[#E6F8F2] via-[#F2FBF9] to-[#F4F8F6] pb-8">
+    <div className="min-h-full bg-[#F4F4F1] pb-8">
       <SubPageHeader title="可回收物交投" />
-      <div className="p-4 space-y-3.5">
+      <div className="p-3.5 space-y-2.5">
         {channels.map((ch) => {
           const Icon = ch.icon;
           return (
             <div
               key={ch.title}
-              className="bg-white rounded-3xl p-4 shadow-[0_6px_22px_-8px_rgba(15,23,42,0.08)] border border-emerald-950/5"
+              className="bg-white rounded-xl p-4 border border-[#E6E6E1]"
             >
               <div className="flex items-start gap-3">
-                <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 ${ch.accentBg} ${ch.accentText}`}>
-                  <Icon className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-lg bg-[#EDF5F2] text-[#1D6F5A] flex items-center justify-center shrink-0">
+                  <Icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className={`text-[17px] font-extrabold ${ch.accentText}`}>{ch.title}</h2>
-                  <p className="text-[11px] font-medium text-slate-400 mt-0.5">{ch.subtitle}</p>
+                  <h2 className="text-[15.5px] font-bold text-zinc-900">{ch.title}</h2>
+                  <p className="text-[11.5px] text-zinc-500 mt-0.5">{ch.subtitle}</p>
                 </div>
               </div>
-              <p className="text-[13px] leading-relaxed text-slate-600 mt-3">{ch.desc}</p>
-              <div className="mt-4 flex justify-end">
+              <p className="text-[12.5px] leading-relaxed text-zinc-600 mt-2.5">{ch.desc}</p>
+              <div className="mt-3.5 flex justify-end">
                 <button
                   onClick={ch.onClick}
-                  className={`px-5 py-2.5 rounded-full text-[13px] font-semibold shadow-md active:scale-95 transition ${ch.btnCls}`}
+                  className={`px-4 py-2 rounded-lg text-[12.5px] font-semibold inline-flex items-center gap-1 transition ${
+                    ch.primary
+                      ? 'bg-[#1D6F5A] text-white active:bg-[#175C4A]'
+                      : 'bg-[#F4F4F1] text-zinc-800 hover:bg-zinc-200/70'
+                  }`}
                 >
-                  {ch.btnText}
+                  <span>{ch.btnText}</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
@@ -116,19 +112,19 @@ export const RecyclablesHubPage: React.FC = () => {
   );
 };
 
-/* ===================== 2. 附近投递点（支持地图+列表切换） ===================== */
+/* ===================== 2. 附近投递点（真实 Leaflet 南京地图 + 列表） ===================== */
 export const NearbyStationsPage: React.FC<{
   stationType: 'smart_machine' | 'fixed_station' | 'sorting_center';
 }> = ({ stationType }) => {
   const { user, setShowScanner, showToast } = useApp();
-  const [maxMeters, setMaxMeters] = useState<number>(3000);
+  const [maxMeters, setMaxMeters] = useState<number>(1000);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [activeStationId, setActiveStationId] = useState<string | null>(null);
 
   const titleMap = {
-    smart_machine: '智能回收机',
-    fixed_station: '固定交投点',
-    sorting_center: '回收站（分拣中心）',
+    smart_machine: '附近智能回收柜',
+    fixed_station: '附近固定交投点',
+    sorting_center: '附近分拣中心',
   };
 
   const distances = [
@@ -138,22 +134,24 @@ export const NearbyStationsPage: React.FC<{
     { label: '5公里', value: 5000 },
   ];
 
+  const userCommunity =
+    NANJING_COMMUNITIES.find((c) => c.name === user.community) ?? NANJING_COMMUNITIES[0];
+
   const list = STATION_POINTS.filter(
     (s) => s.type === stationType && s.distanceMeters <= maxMeters
   ).sort((a, b) => a.distanceMeters - b.distanceMeters);
 
   const selectedStation = list.find((s) => s.id === activeStationId) ?? list[0];
-
   const formatDist = (m: number) => (m < 1000 ? `${m}m` : `${(m / 1000).toFixed(1)}km`);
 
   return (
-    <div className="min-h-full bg-[#F4F8F6] pb-8">
+    <div className="min-h-full bg-[#F4F4F1] pb-8">
       <SubPageHeader
         title={titleMap[stationType]}
         rightAction={
           <button
             onClick={() => setViewMode((v) => (v === 'list' ? 'map' : 'list'))}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-[12px] font-semibold active:scale-95 transition"
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#EDF5F2] text-[#1D6F5A] text-[12px] font-medium"
           >
             {viewMode === 'list' ? <MapIcon className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
             <span>{viewMode === 'list' ? '地图' : '列表'}</span>
@@ -161,19 +159,19 @@ export const NearbyStationsPage: React.FC<{
         }
       />
 
-      {/* Distance Filter Pills */}
-      <div className="sticky top-13 z-20 bg-white/95 backdrop-blur-md px-4 py-3 border-b border-slate-100">
-        <div className="grid grid-cols-4 gap-2">
+      {/* Distance Filter Bar */}
+      <div className="sticky top-12 z-20 bg-white px-3.5 py-2.5 border-b border-[#E6E6E1]">
+        <div className="grid grid-cols-4 gap-1.5">
           {distances.map((d) => {
             const active = maxMeters === d.value;
             return (
               <button
                 key={d.value}
                 onClick={() => setMaxMeters(d.value)}
-                className={`py-1.5 rounded-full text-[13px] font-semibold transition ${
+                className={`py-1.5 rounded-lg text-[12px] font-medium transition ${
                   active
-                    ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/20'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
+                    ? 'bg-[#1D6F5A] text-white'
+                    : 'bg-[#F4F4F1] text-zinc-600'
                 }`}
               >
                 {d.label}
@@ -181,88 +179,57 @@ export const NearbyStationsPage: React.FC<{
             );
           })}
         </div>
-        <div className="mt-2 flex items-center justify-between text-[11px] text-slate-500">
+        <div className="mt-2 flex items-center justify-between text-[11px] text-zinc-500">
           <span className="flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-            当前定位：{user.community}附近
+            <MapPin className="w-3.5 h-3.5 text-[#1D6F5A]" />
+            南京市{user.district} · {user.community}附近
           </span>
-          <span className="font-medium text-emerald-700">找到 {list.length} 个可用点位</span>
+          <span className="font-medium text-zinc-700 tabular-nums">共 {list.length} 处点位</span>
         </div>
       </div>
 
-      {/* Visual Interactive Map View */}
+      {/* Real Nanjing Leaflet Map View */}
       {viewMode === 'map' && (
-        <div className="p-4 space-y-3">
-          <div className="relative h-72 rounded-3xl overflow-hidden bg-[#E3F4EC] border border-emerald-200 shadow-inner">
-            {/* Stylized Beijing street grid */}
-            <svg className="absolute inset-0 w-full h-full opacity-55" viewBox="0 0 400 300">
-              <path d="M0 70 H400 M0 155 H400 M0 235 H400" stroke="#FFFFFF" strokeWidth="10" />
-              <path d="M90 0 V300 M205 0 V300 M315 0 V300" stroke="#FFFFFF" strokeWidth="10" />
-              <path d="M20 280 Q150 200 380 40" stroke="#A7F3D0" strokeWidth="14" fill="none" />
-              <rect x="115" y="90" width="70" height="48" rx="10" fill="#BBF7D0" />
-              <rect x="230" y="175" width="68" height="46" rx="10" fill="#BAE6FD" />
-            </svg>
+        <div className="p-3.5 space-y-3">
+          <NanjingMap
+            centerLat={userCommunity.lat}
+            centerLng={userCommunity.lng}
+            radiusMeters={maxMeters}
+            stations={list}
+            selectedId={selectedStation?.id ?? null}
+            onSelect={(id) => setActiveStationId(id)}
+          />
 
-            {/* User center dot */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-              <span className="w-4 h-4 rounded-full bg-sky-500 ring-4 ring-sky-400/35 shadow" />
-              <span className="mt-1 px-2 py-0.5 rounded-full bg-white/90 text-[10px] font-bold text-slate-700 shadow-sm">
-                我的位置
-              </span>
-            </div>
-
-            {/* Station Pins */}
-            {list.map((st) => {
-              const active = selectedStation?.id === st.id;
-              return (
-                <button
-                  key={st.id}
-                  onClick={() => setActiveStationId(st.id)}
-                  style={{ left: `${st.xPercent}%`, top: `${st.yPercent}%` }}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 transition-transform ${
-                    active ? 'scale-115 z-20' : 'scale-100 z-10'
-                  }`}
-                >
-                  <div
-                    className={`px-2.5 py-1 rounded-full text-[11px] font-bold shadow-md flex items-center gap-1 whitespace-nowrap ${
-                      active
-                        ? 'bg-emerald-600 text-white ring-4 ring-emerald-400/40'
-                        : 'bg-white text-emerald-800 border border-emerald-200'
-                    }`}
-                  >
-                    <MapPin className="w-3 h-3" />
-                    <span>{formatDist(st.distanceMeters)}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {selectedStation && (
-            <div className="bg-white rounded-2xl p-4 shadow-md border border-emerald-100">
+          {selectedStation ? (
+            <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1]">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <h3 className="text-[15px] font-bold text-slate-900">{selectedStation.name}</h3>
-                  <p className="text-[12px] text-slate-500 mt-0.5">{selectedStation.address}</p>
+                  <h3 className="text-[14.5px] font-semibold text-zinc-900">{selectedStation.name}</h3>
+                  <p className="text-[12px] text-zinc-500 mt-0.5">{selectedStation.address}</p>
+                  <p className="text-[11px] text-zinc-400 mt-1">{selectedStation.hours} · {selectedStation.priceHighlight}</p>
                 </div>
-                <span className="shrink-0 text-[12px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+                <span className="shrink-0 text-[12px] font-semibold text-[#1D6F5A] bg-[#EDF5F2] px-2 py-0.5 rounded tabular-nums">
                   {formatDist(selectedStation.distanceMeters)}
                 </span>
               </div>
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => showToast(`已为您规划前往「${selectedStation.name}」的步行导航`, 'info')}
-                  className="flex-1 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-[12px] font-semibold flex items-center justify-center gap-1"
+                  onClick={() => showToast(`已发起前往「${selectedStation.name}」的步行路线`, 'info')}
+                  className="py-2 rounded-lg border border-[#E6E6E1] text-zinc-700 text-[12px] font-medium flex items-center justify-center gap-1"
                 >
-                  <Navigation className="w-3.5 h-3.5" /> 导航前往
+                  <Navigation className="w-3.5 h-3.5 text-[#1D6F5A]" /> 路线导航
                 </button>
                 <button
                   onClick={() => setShowScanner(true)}
-                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-[12px] font-semibold flex items-center justify-center gap-1"
+                  className="py-2 rounded-lg bg-[#1D6F5A] text-white text-[12px] font-semibold flex items-center justify-center gap-1"
                 >
-                  <ScanLine className="w-3.5 h-3.5" /> 扫码投递
+                  <ScanLine className="w-3.5 h-3.5" /> 扫码开箱
                 </button>
               </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl p-4 border border-[#E6E6E1] text-center text-[12.5px] text-zinc-500">
+              当前距离范围内暂无点位，请切换至 3 公里或 5 公里查看
             </div>
           )}
         </div>
@@ -270,109 +237,105 @@ export const NearbyStationsPage: React.FC<{
 
       {/* List View */}
       {viewMode === 'list' && (
-        <div className="p-4 space-y-3">
+        <div className="p-3.5 space-y-2.5">
           {list.length === 0 ? (
-            <div className="py-16 flex flex-col items-center text-center">
-              <EmptyInboxIllustration className="w-24 h-24" />
-              <p className="text-[15px] font-bold text-slate-700 mt-3">当前范围内暂无投递点</p>
-              <p className="text-[12px] text-slate-400 mt-1">可切换至「3公里」或「5公里」查看更多站点</p>
+            <div className="py-16 text-center">
+              <p className="text-[14px] font-semibold text-zinc-700">当前范围内暂无投递点</p>
+              <p className="text-[12px] text-zinc-400 mt-1">切换至 3 公里或 5 公里查看更多南京网点</p>
               <button
                 onClick={() => setMaxMeters(5000)}
-                className="mt-4 px-5 py-2 rounded-full bg-emerald-600 text-white text-[13px] font-semibold"
+                className="mt-4 px-4 py-2 rounded-lg bg-[#1D6F5A] text-white text-[12.5px] font-medium"
               >
-                扩大至 5 公里搜索
+                扩大至 5 公里
               </button>
             </div>
           ) : (
             list.map((st) => (
               <div
                 key={st.id}
-                className="bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5 space-y-3"
+                className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2.5"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-[15px] font-bold text-slate-900">{st.name}</h3>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h3 className="text-[14.5px] font-semibold text-zinc-900">{st.name}</h3>
                       <span
-                        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${
+                        className={`text-[10.5px] font-medium px-1.5 py-0.5 rounded ${
                           st.status === 'online'
-                            ? 'bg-emerald-50 text-emerald-700'
-                            : 'bg-amber-50 text-amber-700'
+                            ? 'bg-[#EDF5F2] text-[#1D6F5A]'
+                            : 'bg-amber-50 text-amber-800'
                         }`}
                       >
-                        {st.status === 'online' ? '正常开放' : '格口偏满'}
+                        {st.status === 'online' ? '正常开放' : '容量偏满'}
                       </span>
                     </div>
-                    <p className="text-[12px] text-slate-500 mt-1 flex items-start gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
-                      <span>{st.address}</span>
-                    </p>
-                    <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 shrink-0" />
+                    <p className="text-[12px] text-zinc-500 mt-1">{st.address}</p>
+                    <p className="text-[11px] text-zinc-400 mt-0.5 flex items-center gap-1">
+                      <Clock className="w-3 h-3 shrink-0" />
                       <span>{st.hours}</span>
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <div className="text-[14px] font-extrabold text-emerald-600 tabular-nums">
+                    <div className="text-[14px] font-bold text-[#1D6F5A] tabular-nums">
                       {formatDist(st.distanceMeters)}
                     </div>
-                    <div className="text-[10px] text-slate-400">距您约{Math.max(2, Math.round(st.distanceMeters / 75))}分钟</div>
+                    <div className="text-[10.5px] text-zinc-400">约{Math.max(2, Math.round(st.distanceMeters / 75))}分钟</div>
                   </div>
                 </div>
 
-                {/* Live Capacity Bar */}
+                {/* Capacity Bar */}
                 <div>
                   <div className="flex items-center justify-between text-[11px] mb-1">
-                    <span className="text-slate-500">当前柜体余量</span>
-                    <span className="font-semibold text-slate-700 tabular-nums">
+                    <span className="text-zinc-500">当前柜体余量</span>
+                    <span className="font-medium text-zinc-700 tabular-nums">
                       空闲 {100 - st.capacityPercent}%
                     </span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                  <div className="h-1.5 w-full rounded-full bg-[#ECECE8] overflow-hidden">
                     <div
                       className={`h-full rounded-full ${
-                        st.capacityPercent > 80 ? 'bg-amber-500' : 'bg-emerald-500'
+                        st.capacityPercent > 80 ? 'bg-amber-600' : 'bg-[#1D6F5A]'
                       }`}
                       style={{ width: `${st.capacityPercent}%` }}
                     />
                   </div>
                 </div>
 
-                {/* Categories + Highlight */}
                 <div className="flex flex-wrap gap-1.5">
                   {st.categories.map((c) => (
                     <span
                       key={c}
-                      className="text-[11px] px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 font-medium"
+                      className="text-[11px] px-2 py-0.5 rounded bg-[#F4F4F1] text-zinc-600"
                     >
                       {c}
                     </span>
                   ))}
                 </div>
-                <div className="text-[12px] font-medium text-emerald-700 bg-emerald-50/70 px-3 py-1.5 rounded-xl">
-                  💡 {st.priceHighlight}
+
+                <div className="text-[11.5px] text-zinc-600 bg-[#FAFAF8] border border-[#F0F0EC] px-2.5 py-1.5 rounded-lg">
+                  {st.priceHighlight}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2.5 pt-1">
+                <div className="grid grid-cols-2 gap-2 pt-0.5">
                   <button
-                    onClick={() => showToast(`已打开前往「${st.name}」的路线导航`, 'info')}
-                    className="py-2 rounded-xl border border-slate-200 text-slate-700 text-[12px] font-semibold flex items-center justify-center gap-1 active:scale-95 transition"
+                    onClick={() => showToast(`已打开前往「${st.name}」的步行导航`, 'info')}
+                    className="py-2 rounded-lg border border-[#E6E6E1] text-zinc-700 text-[12px] font-medium flex items-center justify-center gap-1"
                   >
-                    <Navigation className="w-3.5 h-3.5 text-sky-600" />
-                    <span>导航前往</span>
+                    <Navigation className="w-3.5 h-3.5 text-[#1D6F5A]" />
+                    <span>导航</span>
                   </button>
                   {stationType === 'smart_machine' ? (
                     <button
                       onClick={() => setShowScanner(true)}
-                      className="py-2 rounded-xl bg-emerald-600 text-white text-[12px] font-semibold flex items-center justify-center gap-1 active:scale-95 transition"
+                      className="py-2 rounded-lg bg-[#1D6F5A] text-white text-[12px] font-semibold flex items-center justify-center gap-1"
                     >
                       <ScanLine className="w-3.5 h-3.5" />
                       <span>扫码投递</span>
                     </button>
                   ) : (
                     <button
-                      onClick={() => showToast(`正在模拟致电站点：${st.phone ?? '010-64378821'}`, 'info')}
-                      className="py-2 rounded-xl bg-emerald-600 text-white text-[12px] font-semibold flex items-center justify-center gap-1 active:scale-95 transition"
+                      onClick={() => showToast(`已复制联系电话 ${st.phone ?? '025-84431208'}`, 'info')}
+                      className="py-2 rounded-lg bg-[#1D6F5A] text-white text-[12px] font-semibold flex items-center justify-center gap-1"
                     >
                       <Phone className="w-3.5 h-3.5" />
                       <span>联系站点</span>
@@ -388,7 +351,7 @@ export const NearbyStationsPage: React.FC<{
   );
 };
 
-/* ===================== 3. 可回收物预约交投页 ===================== */
+/* ===================== 3. 可回收物上门预约 ===================== */
 export const RecyclablesBookingPage: React.FC = () => {
   const { addresses, selectedAddressId, navigate, createOrder, setActiveTab, showToast } = useApp();
   const currentAddr = addresses.find((a) => a.id === selectedAddressId) ?? addresses[0];
@@ -441,24 +404,24 @@ export const RecyclablesBookingPage: React.FC = () => {
 
   const handleSubmit = () => {
     if (!currentAddr) {
-      showToast('请先添加并选择回收地址', 'warning');
+      showToast('请先选择回收地址', 'warning');
       return;
     }
     if (totalWeight <= 0) {
-      showToast('请至少选择一种回收品类和预估重量', 'warning');
+      showToast('请至少选择一种品类和重量', 'warning');
       return;
     }
     const provider = RECYCLABLE_PROVIDERS.find((p) => p.id === providerId)!;
     const summary = Object.entries(weights)
       .map(([id, kg]) => {
         const cat = DAILY_MARKET_PRICES.find((p) => p.id === id);
-        return `${cat?.name.split('/')[0] ?? id} ${kg}kg`;
+        return `${cat?.shortName ?? id} ${kg}kg`;
       })
       .join('、');
 
     createOrder({
       category: 'recyclable',
-      categoryLabel: '可回收物预约交投',
+      categoryLabel: '可回收物上门回收',
       status: 'pending',
       appointmentTime: timeSlot,
       addressText: `${currentAddr.region}${currentAddr.street} ${currentAddr.community} ${currentAddr.detail}`,
@@ -474,136 +437,121 @@ export const RecyclablesBookingPage: React.FC = () => {
       photos,
     });
 
-    showToast('预约交投下单成功！已奖励 +15 下单积分', 'success');
+    showToast('预约已提交，师傅接单后将致电联系', 'success');
     navigate({ name: 'tabs' });
     setActiveTab('orders');
   };
 
   return (
-    <div className="min-h-full bg-[#F4F8F6] pb-28">
-      <SubPageHeader title="预约交投" />
+    <div className="min-h-full bg-[#F4F4F1]">
+      <SubPageHeader title="预约上门回收" />
 
-      <div className="p-4 space-y-3.5">
-        {/* Warm Tip */}
-        <div className="rounded-2xl bg-sky-50 border-l-4 border-sky-500 px-3.5 py-2.5 text-[12px] text-sky-900 leading-relaxed">
-          <span className="font-bold">温馨提示：</span>
-          针对年长、行动不便人士及大宗交投居民提供上门回收服务，回收物总重量建议大于 <span className="font-bold text-sky-700">5公斤</span>。
+      <div className="p-3.5 space-y-3">
+        <div className="rounded-lg bg-[#EDF5F2] border-l-3 border-[#1D6F5A] px-3 py-2 text-[12px] text-zinc-700 leading-relaxed">
+          高龄及行动不便居民或大宗旧物可预约上门，建议总重量满 <span className="font-semibold text-zinc-900">5 公斤</span>。
         </div>
 
-        {/* Address Card */}
+        {/* Address */}
         <button
           onClick={() => navigate({ name: 'address_list', selectMode: true })}
-          className="w-full bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5 text-left flex items-center justify-between gap-3 active:scale-[0.99] transition"
+          className="w-full bg-white rounded-xl p-3.5 border border-[#E6E6E1] text-left flex items-center justify-between gap-3"
         >
           {currentAddr ? (
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">
-                  回收地
+                <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-[#EDF5F2] text-[#1D6F5A]">
+                  上门地址
                 </span>
-                <span className="text-[14px] font-bold text-slate-900">
+                <span className="text-[14px] font-semibold text-zinc-900 tabular-nums">
                   {currentAddr.contactName} {currentAddr.phone}
                 </span>
               </div>
-              <p className="text-[12px] text-slate-500 mt-1 truncate">
+              <p className="text-[12px] text-zinc-500 mt-1 truncate">
                 {currentAddr.region} {currentAddr.community} {currentAddr.detail}
               </p>
             </div>
           ) : (
-            <span className="text-[14px] font-semibold text-rose-600">* 请选择回收地（必选）</span>
+            <span className="text-[14px] font-medium text-rose-700">* 请选择回收地址</span>
           )}
-          <MapPin className="w-5 h-5 text-emerald-600 shrink-0" />
+          <MapPin className="w-4.5 h-4.5 text-[#1D6F5A] shrink-0" />
         </button>
 
-        {/* Service Enterprise Picker */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5 space-y-2.5">
-          <div className="flex items-center gap-1.5 text-[13px] font-bold text-slate-900">
-            <Building2 className="w-4 h-4 text-emerald-600" />
-            <span>
-              <span className="text-rose-500">*</span> 选择服务企业
-            </span>
+        {/* Service Enterprise */}
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2">
+          <div className="flex items-center gap-1.5 text-[13px] font-semibold text-zinc-900">
+            <Building2 className="w-4 h-4 text-[#1D6F5A]" />
+            <span>选择回收服务队</span>
           </div>
-          <div className="space-y-2">
-            {RECYCLABLE_PROVIDERS.map((p) => {
-              const active = providerId === p.id;
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => setProviderId(p.id)}
-                  className={`w-full p-3 rounded-xl border text-left flex items-center justify-between transition ${
-                    active
-                      ? 'border-emerald-500 bg-emerald-50/50'
-                      : 'border-slate-100 bg-slate-50/60'
+          {RECYCLABLE_PROVIDERS.map((p) => {
+            const active = providerId === p.id;
+            return (
+              <button
+                key={p.id}
+                onClick={() => setProviderId(p.id)}
+                className={`w-full p-2.5 rounded-lg border text-left flex items-center justify-between transition ${
+                  active ? 'border-[#1D6F5A] bg-[#EDF5F2]/50' : 'border-[#ECECE8] bg-[#FAFAF8]'
+                }`}
+              >
+                <div>
+                  <div className="text-[13px] font-semibold text-zinc-900">{p.name}</div>
+                  <div className="text-[11px] text-zinc-500 mt-0.5">
+                    评分 {p.rating} · {p.response} · {p.tag}
+                  </div>
+                </div>
+                <div
+                  className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center shrink-0 ${
+                    active ? 'border-[#1D6F5A] bg-[#1D6F5A] text-white' : 'border-zinc-300'
                   }`}
                 >
-                  <div>
-                    <div className="text-[13px] font-bold text-slate-900">{p.name}</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
-                      ★ {p.rating} · {p.response} · {p.tag}
-                    </div>
-                  </div>
-                  <div
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      active ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300'
-                    }`}
-                  >
-                    {active && <Check className="w-3 h-3 stroke-[3]" />}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+                  {active && <Check className="w-3 h-3 stroke-[3]" />}
+                </div>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Category & Weight Selector */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5 space-y-3">
+        {/* Categories & Weights */}
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] font-bold text-slate-900">
-              <span className="text-rose-500">*</span> 选择回收品类及预估重量
-            </span>
+            <span className="text-[13px] font-semibold text-zinc-900">选择品类与预估重量</span>
             <span
-              className={`text-[11px] font-bold px-2 py-0.5 rounded-full tabular-nums ${
-                totalWeight >= 5
-                  ? 'bg-emerald-50 text-emerald-700'
-                  : 'bg-amber-50 text-amber-700'
+              className={`text-[11.5px] font-semibold px-2 py-0.5 rounded tabular-nums ${
+                totalWeight >= 5 ? 'bg-[#EDF5F2] text-[#1D6F5A]' : 'bg-amber-50 text-amber-800'
               }`}
             >
               合计 {totalWeight.toFixed(1)} kg
             </span>
           </div>
 
-          <div className="space-y-2">
+          <div className="divide-y divide-[#F0F0EC]">
             {DAILY_MARKET_PRICES.map((item) => {
               const kg = weights[item.id] ?? 0;
               return (
-                <div
-                  key={item.id}
-                  className={`p-2.5 rounded-xl border flex items-center justify-between transition ${
-                    kg > 0 ? 'border-emerald-300 bg-emerald-50/30' : 'border-slate-100 bg-slate-50/50'
-                  }`}
-                >
+                <div key={item.id} className="py-2.5 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xl">{item.icon}</span>
+                    <div className="w-8 h-8 rounded-lg bg-[#F4F4F1] text-zinc-700 flex items-center justify-center">
+                      <ItemIcon id={item.id} className="w-4 h-4" />
+                    </div>
                     <div>
-                      <div className="text-[13px] font-semibold text-slate-900">{item.name}</div>
-                      <div className="text-[11px] text-emerald-700 font-medium tabular-nums">
-                        参考价 ¥{item.price.toFixed(1)}/kg
+                      <div className="text-[13px] font-medium text-zinc-900">{item.name}</div>
+                      <div className="text-[11px] text-zinc-500 tabular-nums">
+                        参考 ¥{item.price.toFixed(item.price < 1 ? 2 : 1)}/kg
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => updateWeight(item.id, -1)}
-                      className="w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 active:scale-90 transition"
+                      className="w-7 h-7 rounded-lg bg-[#F4F4F1] flex items-center justify-center text-zinc-600"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="w-11 text-center text-[13px] font-bold text-slate-900 tabular-nums">
+                    <span className="w-10 text-center text-[13px] font-semibold text-zinc-900 tabular-nums">
                       {kg}kg
                     </span>
                     <button
                       onClick={() => updateWeight(item.id, 1)}
-                      className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center active:scale-90 transition"
+                      className="w-7 h-7 rounded-lg bg-[#1D6F5A] text-white flex items-center justify-center"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -614,25 +562,25 @@ export const RecyclablesBookingPage: React.FC = () => {
           </div>
 
           {totalWeight > 0 && totalWeight < 5 && (
-            <div className="flex items-center gap-1.5 text-[11px] text-amber-700 bg-amber-50 px-3 py-2 rounded-xl">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>当前预估重量不足 5kg，建议攒够 5kg 上门或使用附近24h智能回收机投递</span>
+            <div className="flex items-center gap-1.5 text-[11px] text-amber-800 bg-amber-50 px-2.5 py-2 rounded-lg">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <span>当前不足 5kg，建议攒满后上门或直接投递小区智能回收柜</span>
             </div>
           )}
         </div>
 
         {/* Time Slot */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5">
-          <div className="text-[13px] font-bold text-slate-900 mb-2.5">预约上门时段</div>
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1]">
+          <div className="text-[13px] font-semibold text-zinc-900 mb-2">期望上门时段</div>
           <div className="grid grid-cols-2 gap-2">
             {timeSlots.map((slot) => (
               <button
                 key={slot}
                 onClick={() => setTimeSlot(slot)}
-                className={`py-2 px-2.5 rounded-xl text-[12px] font-semibold border transition ${
+                className={`py-2 px-2 rounded-lg text-[12px] font-medium border transition ${
                   timeSlot === slot
-                    ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
-                    : 'border-slate-100 bg-slate-50 text-slate-600'
+                    ? 'border-[#1D6F5A] bg-[#EDF5F2] text-[#1D6F5A]'
+                    : 'border-[#ECECE8] bg-[#FAFAF8] text-zinc-600'
                 }`}
               >
                 {slot}
@@ -641,32 +589,31 @@ export const RecyclablesBookingPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Cross-link banner matching original mini-program */}
-        <div className="rounded-2xl bg-sky-50 border border-sky-100 px-3.5 py-2.5 flex items-center justify-between gap-2">
-          <span className="text-[12px] text-sky-900 font-medium">
-            温馨提示：大件垃圾/装修垃圾有偿清运
-          </span>
+        {/* Cross link */}
+        <div className="rounded-xl bg-white border border-[#E6E6E1] px-3.5 py-2.5 flex items-center justify-between gap-2">
+          <span className="text-[12px] text-zinc-600">大件旧家具或装修砖渣？</span>
           <button
             onClick={() => navigate({ name: 'bulky_booking' })}
-            className="shrink-0 px-3.5 py-1 rounded-full bg-sky-500 text-white text-[12px] font-semibold active:scale-95 transition"
+            className="text-[12px] font-semibold text-[#1D6F5A] flex items-center"
           >
-            去看看
+            <span>大件清运入口</span>
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* Photos & Remarks */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5 space-y-3">
-          <div className="text-[13px] font-bold text-slate-900">现场照片与备注</div>
-          <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2.5">
+          <div className="text-[13px] font-semibold text-zinc-900">现场照片与备注</div>
+          <div className="flex items-center gap-2 flex-wrap">
             {photos.map((src, i) => (
-              <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-slate-200">
+              <div key={i} className="w-15 h-15 rounded-lg overflow-hidden border border-[#E6E6E1]">
                 <img src={src} alt="上传照片" className="w-full h-full object-cover" />
               </div>
             ))}
             {photos.length < 4 && (
-              <label className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-slate-400 cursor-pointer hover:border-emerald-400 hover:text-emerald-600 transition">
-                <Camera className="w-5 h-5" />
-                <span className="text-[10px] mt-0.5">{photos.length}/4</span>
+              <label className="w-15 h-15 rounded-lg border border-dashed border-zinc-300 bg-[#FAFAF8] flex flex-col items-center justify-center text-zinc-400 cursor-pointer">
+                <Camera className="w-4.5 h-4.5" />
+                <span className="text-[10px] mt-0.5 tabular-nums">{photos.length}/4</span>
                 <input type="file" accept="image/*" multiple onChange={handlePhotoAdd} className="hidden" />
               </label>
             )}
@@ -677,35 +624,34 @@ export const RecyclablesBookingPage: React.FC = () => {
               rows={3}
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
-              placeholder="如您有特殊需求（如需要敬老助搬、纸箱较多等），可在此区域描述"
-              className="w-full rounded-xl bg-slate-50 border border-slate-200/80 p-3 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 resize-none"
+              placeholder="选填：如需要上楼协助搬运、纸箱较多等情况"
+              className="w-full rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] p-2.5 text-[13px] text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:border-[#1D6F5A] resize-none"
             />
-            <span className="absolute right-3 bottom-2 text-[11px] text-slate-400 tabular-nums">
+            <span className="absolute right-2.5 bottom-2 text-[10.5px] text-zinc-400 tabular-nums">
               {remarks.length}/200
             </span>
           </div>
         </div>
       </div>
 
-      {/* Sticky Bottom Checkout Bar */}
-      <div className="sticky bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 py-3 flex items-center justify-between gap-3 z-30">
+      {/* Sticky Checkout Footer */}
+      <div className="sticky bottom-0 inset-x-0 bg-white border-t border-[#E6E6E1] px-4 py-3 flex items-center justify-between gap-3 z-30">
         <div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-[11px] text-slate-500">预估收益</span>
-            <span className="text-xl font-extrabold text-emerald-600 tabular-nums">
+            <span className="text-[11px] text-zinc-500">预估收益</span>
+            <span className="text-lg font-bold text-[#1D6F5A] tabular-nums">
               ¥{estimatedCash.toFixed(2)}
             </span>
           </div>
-          <div className="text-[11px] text-amber-600 font-medium flex items-center gap-1 tabular-nums">
-            <Sparkles className="w-3 h-3" />
-            <span>预计可得 +{estimatedPoints} 环保积分</span>
+          <div className="text-[11px] text-zinc-400 tabular-nums">
+            结算预计得 +{estimatedPoints} 积分
           </div>
         </div>
         <button
           onClick={handleSubmit}
-          className="px-7 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-[14px] shadow-lg shadow-emerald-600/25 active:scale-95 transition"
+          className="px-6 py-2.5 rounded-lg bg-[#1D6F5A] active:bg-[#175C4A] text-white font-semibold text-[14px] transition"
         >
-          确认预约
+          提交预约
         </button>
       </div>
     </div>

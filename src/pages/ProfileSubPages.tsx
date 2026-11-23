@@ -9,16 +9,17 @@ import {
   Search,
   ChevronRight,
   Gift,
-  Sparkles,
-  BookOpen,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SubPageHeader } from '../components/Layout';
 import {
+  NANJING_QUIZ,
   POINTS_REWARDS,
   WASTE_CLASSIFICATION_DB,
 } from '../data/mockData';
-import { EmptyInboxIllustration } from '../components/ServiceIllustrations';
+import { ItemIcon } from '../components/NanjingVisuals';
 
 /* ===================== 1. 完善信息 ===================== */
 export const ProfileInfoPage: React.FC = () => {
@@ -30,7 +31,7 @@ export const ProfileInfoPage: React.FC = () => {
 
   const handleSave = () => {
     if (!nickname.trim()) {
-      showToast('请输入用户昵称', 'warning');
+      showToast('请输入姓名或昵称', 'warning');
       return;
     }
     updateUser({
@@ -40,52 +41,39 @@ export const ProfileInfoPage: React.FC = () => {
       birthday,
       birthdayLocked: Boolean(birthday),
     });
-    showToast('个人信息已保存', 'success');
+    showToast('资料已保存', 'success');
     goBack();
   };
 
   return (
-    <div className="min-h-full bg-gradient-to-b from-[#E6F8F2] via-[#F4F8F6] to-[#F4F8F6] pb-8">
-      <SubPageHeader title="完善信息" transparent />
+    <div className="min-h-full bg-[#F4F4F1] pb-8">
+      <SubPageHeader title="完善信息" />
 
-      <div className="px-4 pt-4 space-y-5">
-        <div className="flex flex-col items-center">
-          <div className="relative">
-            <img
-              src="/images/eco-avatar.jpg"
-              alt="头像"
-              className="w-24 h-24 rounded-full object-cover ring-4 ring-white shadow-lg bg-white"
-            />
-            <span className="absolute bottom-0 inset-x-0 bg-slate-900/55 text-white text-[10px] font-medium text-center py-0.5 rounded-b-full">
-              绿色认证
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-3xl p-5 shadow-sm border border-emerald-950/5 space-y-4">
+      <div className="p-3.5">
+        <div className="bg-white rounded-xl p-4 border border-[#E6E6E1] space-y-4">
           <div>
-            <label className="text-[12px] font-semibold text-slate-500 block mb-1.5">用户昵称</label>
+            <label className="text-[12px] font-medium text-zinc-500 block mb-1.5">昵称 / 联系人</label>
             <input
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              className="w-full rounded-2xl bg-slate-50 border border-slate-200/80 px-4 py-3 text-[15px] font-semibold text-slate-900 focus:outline-none focus:border-emerald-500"
+              className="w-full rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] px-3 py-2.5 text-[14px] text-zinc-900 focus:outline-none focus:border-[#1D6F5A]"
             />
           </div>
 
           <div>
-            <label className="text-[12px] font-semibold text-slate-500 block mb-1.5">性别</label>
-            <div className="grid grid-cols-2 gap-3">
+            <label className="text-[12px] font-medium text-zinc-500 block mb-1.5">性别</label>
+            <div className="grid grid-cols-2 gap-2.5">
               {[
-                { id: 'male', label: '♂ 男' },
-                { id: 'female', label: '♀ 女' },
+                { id: 'male', label: '男' },
+                { id: 'female', label: '女' },
               ].map((g) => (
                 <button
                   key={g.id}
                   onClick={() => setGender(g.id as 'male' | 'female')}
-                  className={`py-3 rounded-2xl font-bold text-[14px] border transition ${
+                  className={`py-2.5 rounded-lg font-medium text-[13.5px] border transition ${
                     gender === g.id
-                      ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                      : 'border-slate-100 bg-slate-50 text-slate-500'
+                      ? 'border-[#1D6F5A] bg-[#EDF5F2] text-[#1D6F5A]'
+                      : 'border-[#E6E6E1] bg-[#FAFAF8] text-zinc-600'
                   }`}
                 >
                   {g.label}
@@ -95,34 +83,34 @@ export const ProfileInfoPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="text-[12px] font-semibold text-slate-500 block mb-1.5">绑定手机号</label>
+            <label className="text-[12px] font-medium text-zinc-500 block mb-1.5">手机号</label>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded-2xl bg-slate-50 border border-slate-200/80 px-4 py-3 text-[15px] font-medium text-slate-700 tabular-nums"
+              className="w-full rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] px-3 py-2.5 text-[14px] text-zinc-800 tabular-nums"
             />
           </div>
 
           <div>
-            <label className="text-[12px] font-semibold text-slate-500 block mb-1.5">生日</label>
+            <label className="text-[12px] font-medium text-zinc-500 block mb-1.5">生日</label>
             <input
               type="date"
               disabled={user.birthdayLocked}
               value={birthday}
               onChange={(e) => setBirthday(e.target.value)}
-              className="w-full rounded-2xl bg-slate-50 border border-slate-200/80 px-4 py-3 text-[14px] font-medium text-slate-800 disabled:opacity-60"
+              className="w-full rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] px-3 py-2.5 text-[13.5px] text-zinc-800 disabled:opacity-60"
             />
-            <div className="mt-2 flex items-center justify-center gap-1.5 text-[12px] text-rose-500 font-medium">
-              <AlertCircle className="w-4 h-4" />
-              <span>{user.birthdayLocked ? '生日已设置并锁定' : '生日仅限设置一次，生日当月享双倍环保积分'}</span>
+            <div className="mt-1.5 flex items-center gap-1 text-[11.5px] text-zinc-500">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-700" />
+              <span>{user.birthdayLocked ? '生日已设定' : '生日设置后不可修改'}</span>
             </div>
           </div>
 
           <button
             onClick={handleSave}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-[15px] shadow-md active:scale-[0.98] transition"
+            className="w-full py-2.5 rounded-lg bg-[#1D6F5A] text-white font-semibold text-[14px]"
           >
-            保存资料
+            保存
           </button>
         </div>
       </div>
@@ -144,15 +132,14 @@ export const AddressListPage: React.FC<{ selectMode?: boolean }> = ({ selectMode
   } = useApp();
 
   return (
-    <div className="min-h-full bg-[#F4F8F6] pb-24">
-      <SubPageHeader title={selectMode ? '选择回收地址' : '我的地址'} />
+    <div className="min-h-full bg-[#F4F4F1] flex flex-col">
+      <SubPageHeader title={selectMode ? '选择服务地址' : '地址管理'} />
 
-      <div className="p-4 space-y-3">
+      <div className="p-3.5 space-y-2.5 flex-1">
         {addresses.length === 0 ? (
-          <div className="py-20 flex flex-col items-center text-center">
-            <EmptyInboxIllustration className="w-24 h-24" />
-            <p className="text-[15px] font-bold text-slate-700 mt-3">当前暂无地址</p>
-            <p className="text-[12px] text-slate-400 mt-1">添加常用回收地址，预约上门更快捷</p>
+          <div className="py-16 text-center">
+            <p className="text-[14px] font-semibold text-zinc-700">暂无保存地址</p>
+            <p className="text-[12px] text-zinc-400 mt-1">添加常用南京地址，预约更快捷</p>
           </div>
         ) : (
           addresses.map((addr) => {
@@ -163,37 +150,37 @@ export const AddressListPage: React.FC<{ selectMode?: boolean }> = ({ selectMode
                 onClick={() => {
                   if (selectMode) {
                     setSelectedAddressId(addr.id);
-                    showToast(`已选用「${addr.community}」地址`, 'success');
+                    showToast(`已选用 ${addr.community}`, 'success');
                     goBack();
                   }
                 }}
-                className={`bg-white rounded-2xl p-4 shadow-sm border-2 transition ${
-                  selectMode && isSelected ? 'border-emerald-500' : 'border-transparent'
-                } ${selectMode ? 'cursor-pointer active:scale-[0.99]' : ''}`}
+                className={`bg-white rounded-xl p-3.5 border transition ${
+                  selectMode && isSelected ? 'border-[#1D6F5A] ring-1 ring-[#1D6F5A]' : 'border-[#E6E6E1]'
+                } ${selectMode ? 'cursor-pointer' : ''}`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[15px] font-bold text-slate-900">{addr.contactName}</span>
-                      <span className="text-[13px] text-slate-500 tabular-nums">{addr.phone}</span>
+                      <span className="text-[14.5px] font-semibold text-zinc-900">{addr.contactName}</span>
+                      <span className="text-[12.5px] text-zinc-500 tabular-nums">{addr.phone}</span>
                       {addr.isDefault && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+                        <span className="text-[10.5px] font-medium px-1.5 py-0.5 rounded bg-[#EDF5F2] text-[#1D6F5A]">
                           默认
                         </span>
                       )}
                     </div>
-                    <p className="text-[13px] text-slate-600 mt-1.5 leading-snug">
+                    <p className="text-[12.5px] text-zinc-600 mt-1 leading-snug">
                       {addr.region} {addr.street} {addr.community} {addr.detail}
                     </p>
                   </div>
                   {selectMode && isSelected && (
-                    <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                    <div className="w-5 h-5 rounded-full bg-[#1D6F5A] text-white flex items-center justify-center shrink-0">
                       <Check className="w-3.5 h-3.5 stroke-[3]" />
                     </div>
                   )}
                 </div>
 
-                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[12px]">
+                <div className="mt-3 pt-2.5 border-t border-[#F0F0EC] flex items-center justify-between text-[12px]">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -201,27 +188,27 @@ export const AddressListPage: React.FC<{ selectMode?: boolean }> = ({ selectMode
                       setSelectedAddressId(addr.id);
                       showToast('已设为默认地址', 'success');
                     }}
-                    className={`flex items-center gap-1.5 font-medium ${
-                      addr.isDefault ? 'text-emerald-600' : 'text-slate-400'
+                    className={`flex items-center gap-1.5 ${
+                      addr.isDefault ? 'text-[#1D6F5A] font-medium' : 'text-zinc-400'
                     }`}
                   >
                     <span
                       className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                        addr.isDefault ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300'
+                        addr.isDefault ? 'border-[#1D6F5A] bg-[#1D6F5A] text-white' : 'border-zinc-300'
                       }`}
                     >
                       {addr.isDefault && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                     </span>
-                    <span>设为默认</span>
+                    <span>默认地址</span>
                   </button>
 
-                  <div className="flex items-center gap-4 text-slate-500">
+                  <div className="flex items-center gap-4 text-zinc-500">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate({ name: 'address_edit', editId: addr.id });
                       }}
-                      className="flex items-center gap-1 hover:text-emerald-600"
+                      className="flex items-center gap-1 hover:text-zinc-900"
                     >
                       <Edit3 className="w-3.5 h-3.5" /> 编辑
                     </button>
@@ -231,7 +218,7 @@ export const AddressListPage: React.FC<{ selectMode?: boolean }> = ({ selectMode
                         deleteAddress(addr.id);
                         showToast('地址已删除', 'info');
                       }}
-                      className="flex items-center gap-1 hover:text-rose-600"
+                      className="flex items-center gap-1 hover:text-rose-700"
                     >
                       <Trash2 className="w-3.5 h-3.5" /> 删除
                     </button>
@@ -243,13 +230,13 @@ export const AddressListPage: React.FC<{ selectMode?: boolean }> = ({ selectMode
         )}
       </div>
 
-      <div className="sticky bottom-0 inset-x-0 p-4 bg-white/95 backdrop-blur-md border-t border-slate-100 z-30">
+      <div className="sticky bottom-0 inset-x-0 p-3.5 bg-white border-t border-[#E6E6E1] z-30">
         <button
           onClick={() => navigate({ name: 'address_edit' })}
-          className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-[15px] shadow-md flex items-center justify-center gap-1.5 active:scale-[0.98] transition"
+          className="w-full py-2.5 rounded-lg bg-[#1D6F5A] text-white font-semibold text-[14px] flex items-center justify-center gap-1"
         >
-          <Plus className="w-5 h-5" />
-          <span>新增地址</span>
+          <Plus className="w-4 h-4" />
+          <span>新增南京地址</span>
         </button>
       </div>
     </div>
@@ -263,15 +250,15 @@ export const AddressEditPage: React.FC<{ editId?: string }> = ({ editId }) => {
 
   const [contactName, setContactName] = useState(existing?.contactName ?? '');
   const [phone, setPhone] = useState(existing?.phone ?? '');
-  const [region, setRegion] = useState(existing?.region ?? '北京市朝阳区');
-  const [street, setStreet] = useState(existing?.street ?? '酒仙桥街道');
-  const [community, setCommunity] = useState(existing?.community ?? '丽岛花园');
+  const [region, setRegion] = useState(existing?.region ?? '南京市玄武区');
+  const [street, setStreet] = useState(existing?.street ?? '孝陵卫街道');
+  const [community, setCommunity] = useState(existing?.community ?? '银城东苑');
   const [detail, setDetail] = useState(existing?.detail ?? '');
   const [isDefault, setIsDefault] = useState(existing?.isDefault ?? true);
 
   const handleSave = () => {
     if (!contactName.trim() || !phone.trim() || !detail.trim()) {
-      showToast('请完整填写联系人、手机号和详细地址', 'warning');
+      showToast('请填写完整的联系人、手机号与楼幢门牌', 'warning');
       return;
     }
     if (existing) {
@@ -284,7 +271,7 @@ export const AddressEditPage: React.FC<{ editId?: string }> = ({ editId }) => {
         detail: detail.trim(),
         isDefault,
       });
-      showToast('地址修改成功', 'success');
+      showToast('地址已更新', 'success');
     } else {
       addAddress({
         contactName: contactName.trim(),
@@ -295,79 +282,79 @@ export const AddressEditPage: React.FC<{ editId?: string }> = ({ editId }) => {
         detail: detail.trim(),
         isDefault,
       });
-      showToast('新地址已添加', 'success');
+      showToast('地址已添加', 'success');
     }
     goBack();
   };
 
   return (
-    <div className="min-h-full bg-[#F4F8F6] pb-10">
+    <div className="min-h-full bg-[#F4F4F1] pb-10">
       <SubPageHeader title={existing ? '编辑地址' : '新增地址'} />
 
-      <div className="p-4 space-y-3.5">
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-emerald-950/5 divide-y divide-slate-100">
+      <div className="p-3.5 space-y-3">
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] divide-y divide-[#F0F0EC]">
           <div className="flex items-center gap-3 pb-3">
-            <span className="w-16 text-[14px] font-bold text-slate-800">联系人</span>
+            <span className="w-16 text-[13.5px] font-medium text-zinc-700">联系人</span>
             <input
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
               placeholder="请填写联系人姓名"
-              className="flex-1 text-[14px] text-slate-900 placeholder:text-slate-400 focus:outline-none"
+              className="flex-1 text-[13.5px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
             />
           </div>
           <div className="flex items-center gap-3 pt-3">
-            <span className="w-16 text-[14px] font-bold text-slate-800">手机号</span>
+            <span className="w-16 text-[13.5px] font-medium text-zinc-700">手机号</span>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="请填写11位手机号"
-              className="flex-1 text-[14px] text-slate-900 placeholder:text-slate-400 focus:outline-none tabular-nums"
+              placeholder="请填写 11 位手机号"
+              className="flex-1 text-[13.5px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none tabular-nums"
             />
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-emerald-950/5 space-y-3">
+        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[14px] font-bold text-slate-800">省市区与小区</span>
-            <MapPin className="w-4 h-4 text-emerald-600" />
+            <span className="text-[13.5px] font-medium text-zinc-700">南京所在区与详细门牌</span>
+            <MapPin className="w-4 h-4 text-[#1D6F5A]" />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <input
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              placeholder="省、市、区"
-              className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 text-[13px]"
+              placeholder="南京市XX区"
+              className="rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] px-3 py-2 text-[13px]"
             />
             <input
               value={street}
               onChange={(e) => setStreet(e.target.value)}
               placeholder="街道"
-              className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 text-[13px]"
+              className="rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] px-3 py-2 text-[13px]"
             />
           </div>
           <input
             value={community}
             onChange={(e) => setCommunity(e.target.value)}
-            placeholder="小区名称（例如：丽岛花园）"
-            className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 text-[13px]"
+            placeholder="小区名称（如：银城东苑）"
+            className="w-full rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] px-3 py-2 text-[13px]"
           />
           <input
             value={detail}
             onChange={(e) => setDetail(e.target.value)}
-            placeholder="详细地址（例如：3号楼2单元802室）"
-            className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 text-[13px]"
+            placeholder="楼幢单元门牌（如：18幢2单元501室）"
+            className="w-full rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] px-3 py-2 text-[13px]"
           />
 
           <button
             onClick={() => setIsDefault((v) => !v)}
-            className="flex items-center gap-2 pt-1 text-[13px] font-medium text-slate-700"
+            className="flex items-center gap-2 pt-1 text-[13px] text-zinc-700"
           >
             <span
-              className={`w-5 h-5 rounded-md border flex items-center justify-center transition ${
-                isDefault ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-300'
+              className={`w-4.5 h-4.5 rounded border flex items-center justify-center ${
+                isDefault ? 'bg-[#1D6F5A] border-[#1D6F5A] text-white' : 'border-zinc-300'
               }`}
             >
-              {isDefault && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+              {isDefault && <Check className="w-3 h-3 stroke-[3]" />}
             </span>
             <span>设为默认地址</span>
           </button>
@@ -375,36 +362,45 @@ export const AddressEditPage: React.FC<{ editId?: string }> = ({ editId }) => {
 
         <button
           onClick={handleSave}
-          className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-[15px] shadow-md active:scale-[0.98] transition"
+          className="w-full py-2.5 rounded-lg bg-[#1D6F5A] text-white font-semibold text-[14px]"
         >
-          确认地址
+          保存地址
         </button>
       </div>
     </div>
   );
 };
 
-/* ===================== 4. 使用说明与智能垃圾分类查询器（彻底修复原小程序空白页！） ===================== */
-export const UsageGuidePage: React.FC = () => {
-  const { navigate, setShowAppliancePicker } = useApp();
-  const [query, setQuery] = useState('');
+/* ===================== 4. 使用说明 + 南京四分类查询 + 5题分类自测 ===================== */
+export const UsageGuidePage: React.FC<{ initialQuery?: string }> = ({ initialQuery = '' }) => {
+  const { user, navigate, setShowAppliancePicker, claimQuizReward } = useApp();
+  const [mode, setMode] = useState<'lookup' | 'quiz' | 'guide'>('lookup');
+  const [query, setQuery] = useState(initialQuery);
 
+  // Quiz State
+  const [quizIndex, setQuizIndex] = useState(0);
+  const [picked, setPicked] = useState<string | null>(null);
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
+
+  const q = query.trim();
   const results = WASTE_CLASSIFICATION_DB.filter(
     (item) =>
-      !query.trim() ||
-      item.name.includes(query.trim()) ||
-      item.category.includes(query.trim()) ||
-      item.tip.includes(query.trim())
+      !q ||
+      item.name.includes(q) ||
+      (item.aliases && item.aliases.includes(q)) ||
+      item.category.includes(q) ||
+      item.tip.includes(q)
   );
 
   const badgeStyle = (cat: string) => {
-    if (cat === '可回收物') return 'bg-sky-50 text-sky-700 border-sky-200';
-    if (cat === '大件垃圾') return 'bg-orange-50 text-orange-700 border-orange-200';
-    if (cat === '装修垃圾') return 'bg-stone-100 text-stone-700 border-stone-300';
-    if (cat === '废旧家电') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (cat === '可回收物') return 'bg-blue-50 text-blue-700 border-blue-200';
+    if (cat === '大件垃圾') return 'bg-[#FDF4EC] text-[#B45309] border-amber-200';
+    if (cat === '装修垃圾') return 'bg-zinc-100 text-zinc-700 border-zinc-300';
+    if (cat === '废旧家电') return 'bg-[#EDF5F2] text-[#1D6F5A] border-[#CDE4DC]';
     if (cat === '有害垃圾') return 'bg-rose-50 text-rose-700 border-rose-200';
-    if (cat === '厨余垃圾') return 'bg-lime-50 text-lime-700 border-lime-200';
-    return 'bg-slate-100 text-slate-600 border-slate-200';
+    if (cat === '厨余垃圾') return 'bg-emerald-50 text-emerald-800 border-emerald-200';
+    return 'bg-zinc-100 text-zinc-600 border-zinc-200';
   };
 
   const handleQuickAction = (action?: string) => {
@@ -414,88 +410,209 @@ export const UsageGuidePage: React.FC = () => {
     else if (action === 'appliance_booking') setShowAppliancePicker(true);
   };
 
+  const currQuiz = NANJING_QUIZ[quizIndex];
+
+  const handlePickOption = (opt: string) => {
+    if (picked) return;
+    setPicked(opt);
+    if (opt === currQuiz.answer) {
+      setScore((s) => s + 1);
+    }
+  };
+
+  const handleNextQuestion = () => {
+    if (quizIndex + 1 < NANJING_QUIZ.length) {
+      setQuizIndex((i) => i + 1);
+      setPicked(null);
+    } else {
+      setFinished(true);
+      claimQuizReward();
+    }
+  };
+
   return (
-    <div className="min-h-full bg-[#F4F8F6] pb-10">
-      <SubPageHeader title="使用说明与分类查询" />
+    <div className="min-h-full bg-[#F4F4F1] pb-10">
+      <SubPageHeader title="分类查询与使用说明" />
 
-      <div className="p-4 space-y-4">
-        {/* Interactive Smart Waste Search */}
-        <div className="bg-gradient-to-br from-emerald-600 to-teal-600 rounded-3xl p-4 text-white shadow-md space-y-3">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-emerald-200" />
-            <h2 className="text-[16px] font-bold">北京垃圾分类智能查询</h2>
-          </div>
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="输入物品名称（如：纸箱、电池、床垫、砖块、冰箱）"
-              className="w-full pl-9 pr-4 py-2.5 rounded-2xl bg-white text-slate-900 text-[13px] placeholder:text-slate-400 focus:outline-none"
-            />
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {['快递纸箱', '电池', '旧沙发', '砖块', '冰箱', '外卖盒'].map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setQuery(tag)}
-                className="px-2.5 py-0.5 rounded-full bg-white/15 hover:bg-white/25 text-[11px] font-medium transition"
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Search Results */}
-        <div className="space-y-2.5">
-          {results.map((item) => (
-            <div
-              key={item.name}
-              className="bg-white rounded-2xl p-3.5 shadow-sm border border-emerald-950/5 space-y-1.5"
+      {/* Sub Tabs */}
+      <div className="bg-white border-b border-[#E6E6E1] px-3.5 py-2">
+        <div className="grid grid-cols-3 p-1 rounded-lg bg-[#F4F4F1]">
+          {[
+            { id: 'lookup', label: '南京分类查一查' },
+            { id: 'quiz', label: '分类小测验' },
+            { id: 'guide', label: '服务说明' },
+          ].map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setMode(t.id as typeof mode)}
+              className={`py-1.5 rounded-md text-[12px] font-semibold transition ${
+                mode === t.id ? 'bg-white text-zinc-900 shadow-xs' : 'text-zinc-500'
+              }`}
             >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[14px] font-bold text-slate-900">{item.name}</span>
-                <span className={`shrink-0 text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${badgeStyle(item.category)}`}>
-                  {item.category}
-                </span>
-              </div>
-              <p className="text-[12px] text-slate-500 leading-relaxed">{item.tip}</p>
-              {item.actionRoute && (
-                <button
-                  onClick={() => handleQuickAction(item.actionRoute)}
-                  className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-emerald-600 pt-0.5"
-                >
-                  <span>前往对应回收通道</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
+              {t.label}
+            </button>
           ))}
         </div>
+      </div>
 
-        {/* 4-Step App Guide */}
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-emerald-950/5 space-y-3">
-          <h3 className="text-[15px] font-bold text-slate-900">京彩回收使用指南</h3>
-          <div className="space-y-2.5 text-[12.5px] text-slate-600">
-            <div className="p-3 rounded-2xl bg-slate-50">
-              <div className="font-bold text-slate-900">1. 可回收物日常变现</div>
-              <p className="mt-0.5">纸箱、塑料瓶、金属、旧衣物等可随时扫码投递至社区「24h智能回收机」，称重秒到账；满5公斤支持预约上门。</p>
+      <div className="p-3.5 space-y-3">
+        {mode === 'lookup' && (
+          <>
+            <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2.5">
+              <div className="relative">
+                <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="输入物品名：小龙虾壳、盐水鸭骨、电池、旧床垫..."
+                  className="w-full pl-9 pr-3 py-2 rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] text-[13px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#1D6F5A]"
+                />
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {['小龙虾壳', '猪大骨', '电池', '快递纸箱', '奶茶杯', '旧沙发', '砖块'].map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setQuery(tag)}
+                    className="px-2.5 py-0.5 rounded bg-[#F4F4F1] hover:bg-zinc-200/70 text-[11px] text-zinc-700 transition"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="p-3 rounded-2xl bg-slate-50">
-              <div className="font-bold text-slate-900">2. 大件家具与装修垃圾清运</div>
-              <p className="mt-0.5">选择物品数量或装袋数，查看公开透明价格表与持证处置场资质，一键预约正规车辆上门清运。</p>
+
+            <div className="space-y-2">
+              {results.length === 0 ? (
+                <div className="bg-white rounded-xl p-6 border border-[#E6E6E1] text-center text-[13px] text-zinc-500">
+                  未检索到「{query}」，可尝试搜索大类关键词（如：塑料、纸箱、电池、家具）
+                </div>
+              ) : (
+                results.map((item) => (
+                  <div
+                    key={item.name}
+                    className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[14px] font-semibold text-zinc-900">{item.name}</span>
+                      <span className={`shrink-0 text-[11px] font-medium px-2 py-0.5 rounded border ${badgeStyle(item.category)}`}>
+                        {item.category}
+                      </span>
+                    </div>
+                    <p className="text-[12px] text-zinc-500 leading-relaxed">{item.tip}</p>
+                    {item.actionRoute && (
+                      <button
+                        onClick={() => handleQuickAction(item.actionRoute)}
+                        className="inline-flex items-center gap-0.5 text-[12px] font-medium text-[#1D6F5A] pt-0.5"
+                      >
+                        <span>前往对应回收通道</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
-            <div className="p-3 rounded-2xl bg-slate-50">
-              <div className="font-bold text-slate-900">3. 废旧家电免费拆运领补贴</div>
-              <p className="mt-0.5">对接京东回收、中再生等正规拆解企业，在线即时估价，工程师免费上门拆机并当面结款。</p>
-            </div>
-            <div className="p-3 rounded-2xl bg-slate-50">
-              <div className="font-bold text-slate-900">4. 环保积分与碳账本成长</div>
-              <p className="mt-0.5">每次参与交投均可累计减碳量与环保积分，升级 V1–V4 会员等级，并在「积分商城」兑换实用环保好礼。</p>
+          </>
+        )}
+
+        {mode === 'quiz' && (
+          <div className="bg-white rounded-xl p-4 border border-[#E6E6E1]">
+            {finished ? (
+              <div className="py-6 text-center space-y-3">
+                <div className="text-[12px] text-zinc-500">南京四分类自测结果</div>
+                <div className="text-3xl font-bold text-[#1D6F5A] tabular-nums">
+                  {score} / {NANJING_QUIZ.length}
+                </div>
+                <p className="text-[12.5px] text-zinc-600">
+                  {user.quizClaimed ? '20 积分奖励已记入账户，可随时重测巩固。' : '已完成全部题目。'}
+                </p>
+                <button
+                  onClick={() => {
+                    setQuizIndex(0);
+                    setPicked(null);
+                    setScore(0);
+                    setFinished(false);
+                  }}
+                  className="px-5 py-2 rounded-lg bg-[#1D6F5A] text-white text-[13px] font-medium"
+                >
+                  再测一次
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between text-[11.5px] text-zinc-500">
+                  <span>依据《南京市生活垃圾管理条例》</span>
+                  <span className="font-semibold text-zinc-800 tabular-nums">
+                    第 {quizIndex + 1} / {NANJING_QUIZ.length} 题
+                  </span>
+                </div>
+                <div className="p-3.5 rounded-lg bg-[#FAFAF8] border border-[#ECECE8]">
+                  <div className="text-[15px] font-bold text-zinc-900">{currQuiz.item}</div>
+                  <p className="text-[12px] text-zinc-500 mt-1">{currQuiz.context}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  {currQuiz.options.map((opt) => {
+                    const isPicked = picked === opt;
+                    const isRight = opt === currQuiz.answer;
+                    let cls = 'border-[#E6E6E1] bg-white text-zinc-800 hover:bg-zinc-50';
+                    if (picked) {
+                      if (isRight) cls = 'border-[#1D6F5A] bg-[#EDF5F2] text-[#1D6F5A] font-semibold';
+                      else if (isPicked) cls = 'border-rose-400 bg-rose-50 text-rose-700';
+                      else cls = 'border-[#ECECE8] bg-zinc-50 text-zinc-400';
+                    }
+                    return (
+                      <button
+                        key={opt}
+                        onClick={() => handlePickOption(opt)}
+                        className={`py-3 px-3 rounded-lg border text-[13px] flex items-center justify-between transition ${cls}`}
+                      >
+                        <span>{opt}</span>
+                        {picked && isRight && <CheckCircle2 className="w-4 h-4 text-[#1D6F5A]" />}
+                        {picked && isPicked && !isRight && <XCircle className="w-4 h-4 text-rose-600" />}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {picked && (
+                  <div className="space-y-3">
+                    <div className="rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] p-3 text-[12px] text-zinc-600 leading-relaxed">
+                      <span className="font-semibold text-zinc-900">解析：</span>
+                      {currQuiz.explanation}
+                    </div>
+                    <button
+                      onClick={handleNextQuestion}
+                      className="w-full py-2.5 rounded-lg bg-[#1D6F5A] text-white font-semibold text-[13.5px]"
+                    >
+                      {quizIndex + 1 < NANJING_QUIZ.length ? '下一题' : '查看成绩并领积分'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {mode === 'guide' && (
+          <div className="bg-white rounded-xl p-4 border border-[#E6E6E1] space-y-3 text-[12.5px] text-zinc-600">
+            <h3 className="text-[14.5px] font-bold text-zinc-900">宁回收服务说明</h3>
+            <div className="space-y-2.5 leading-relaxed">
+              <div className="p-3 rounded-lg bg-[#FAFAF8] border border-[#F0F0EC]">
+                <div className="font-semibold text-zinc-900">1. 可回收物交投</div>
+                <p className="mt-0.5">纸箱、塑料瓶、旧衣等可在南京小区 24 小时智能回收柜扫码投递，关门自动称重结款；满 5kg 支持预约上门。</p>
+              </div>
+              <div className="p-3 rounded-lg bg-[#FAFAF8] border border-[#F0F0EC]">
+                <div className="font-semibold text-zinc-900">2. 大件与装修垃圾清运</div>
+                <p className="mt-0.5">直连南京市城管部门备案清运单位，事前公示参考单价与起步价，清运后生成可查验电子联单。</p>
+              </div>
+              <div className="p-3 rounded-lg bg-[#FAFAF8] border border-[#F0F0EC]">
+                <div className="font-semibold text-zinc-900">3. 废旧家电以旧换新</div>
+                <p className="mt-0.5">联合苏宁帮客、京东回收、中再生等正规网点提供免费拆机与残值即时结款服务。</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -506,65 +623,65 @@ export const UserAgreementPage: React.FC = () => {
   const [tab, setTab] = useState<'terms' | 'privacy'>('terms');
 
   return (
-    <div className="min-h-full bg-gradient-to-b from-[#E6F8F2] to-[#F4F8F6] pb-10">
-      <SubPageHeader title="用户协议" />
+    <div className="min-h-full bg-[#F4F4F1] pb-10">
+      <SubPageHeader title="用户协议与隐私政策" />
 
-      <div className="px-4 pt-3 flex gap-2.5">
+      <div className="px-3.5 pt-3 flex gap-2">
         <button
           onClick={() => setTab('terms')}
-          className={`px-4 py-1.5 rounded-full text-[13px] font-bold transition ${
-            tab === 'terms' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-white text-slate-600'
+          className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-medium transition ${
+            tab === 'terms' ? 'bg-[#1D6F5A] text-white' : 'bg-white border border-[#E6E6E1] text-zinc-600'
           }`}
         >
-          用户协议
+          用户服务协议
         </button>
         <button
           onClick={() => setTab('privacy')}
-          className={`px-4 py-1.5 rounded-full text-[13px] font-bold transition ${
-            tab === 'privacy' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-white text-slate-600'
+          className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-medium transition ${
+            tab === 'privacy' ? 'bg-[#1D6F5A] text-white' : 'bg-white border border-[#E6E6E1] text-zinc-600'
           }`}
         >
-          隐私协议
+          隐私保护政策
         </button>
       </div>
 
-      <div className="p-4">
-        <div className="bg-white rounded-3xl p-5 shadow-sm border border-emerald-950/5 space-y-4 text-[13px] leading-relaxed text-slate-700">
+      <div className="p-3.5">
+        <div className="bg-white rounded-xl p-4 border border-[#E6E6E1] space-y-3.5 text-[12.5px] leading-relaxed text-zinc-600">
           {tab === 'terms' ? (
             <>
-              <h2 className="text-[18px] font-extrabold text-slate-900">用户服务须知</h2>
+              <h2 className="text-[16px] font-bold text-zinc-900">宁回收用户服务须知</h2>
               <div>
-                <h3 className="text-[15px] font-bold text-slate-900 mb-1">1. 用户注册须知</h3>
+                <h3 className="text-[13.5px] font-semibold text-zinc-900 mb-1">1. 服务说明</h3>
                 <p>
-                  用户必须是中国境内的居民，且具有完全的民事权利能力及民事行为能力。若您是未满18周岁的未成年人，您应在您的监护人监护、指导下并获得监护人同意的情况下，认真阅读并同意本协议后，方可使用京彩回收软件及相关服务。
+                  本应用面向南京市居民提供可回收物交投查询、预约上门回收、大件家具与装修垃圾规范清运对接、废旧家电回收估价及生活垃圾四分类指引服务。
                 </p>
               </div>
               <div>
-                <h3 className="text-[15px] font-bold text-slate-900 mb-1">2. 用户使用规则</h3>
+                <h3 className="text-[13.5px] font-semibold text-zinc-900 mb-1">2. 规范投放责任</h3>
                 <p>
-                  用户不得利用本平台或本平台服务从事任何不符合中国法律法规或侵犯他人权益的活动。居民在交投可回收物、预约大件垃圾或装修垃圾清运时，应如实申报品类并配合分类规范投放，不得混入易燃易爆或危险化学品。
+                  居民在预约清运或投递可回收物时，应遵循《南京市生活垃圾管理条例》，如实填写物品品类与楼栋电梯条件，严禁将易燃易爆或危险化学废弃物混入日常废品或建筑渣土中。
                 </p>
               </div>
               <div>
-                <h3 className="text-[15px] font-bold text-slate-900 mb-1">3. 结算与积分规则</h3>
+                <h3 className="text-[13.5px] font-semibold text-zinc-900 mb-1">3. 计价与电子联单</h3>
                 <p>
-                  可回收物及废旧家电回收价格根据当日市场行情及现场称重/质检结果实时结算；大件垃圾与装修垃圾有偿清运费用按照平台公示参考标准与清运企业现场核验确认。环保积分可用于平台权益兑换，不支持直接提现。
+                  可回收物及旧家电价格随市场行情动态更新，最终以现场电子秤复核或工程师验机结果为准；大件与装修垃圾有偿清运实行事前透明参考价与现场确认机制。
                 </p>
               </div>
             </>
           ) : (
             <>
-              <h2 className="text-[18px] font-extrabold text-slate-900">隐私权保护政策</h2>
+              <h2 className="text-[16px] font-bold text-zinc-900">隐私权保护政策</h2>
               <div>
-                <h3 className="text-[15px] font-bold text-slate-900 mb-1">1. 信息收集与使用</h3>
+                <h3 className="text-[13.5px] font-semibold text-zinc-900 mb-1">1. 信息使用范围</h3>
                 <p>
-                  为向您提供附近智能回收机定位、上门回收调度与订单结算服务，本平台将在您明确授权后收集必要的地理位置、联系人姓名、手机号及服务地址信息。
+                  联系人姓名、手机号与南京小区地址仅用于附近回收点定位展示、上门清运派单及电子联单生成。
                 </p>
               </div>
               <div>
-                <h3 className="text-[15px] font-bold text-slate-900 mb-1">2. 数据安全保障</h3>
+                <h3 className="text-[13.5px] font-semibold text-zinc-900 mb-1">2. 本地数据存储</h3>
                 <p>
-                  我们采用行业标准的加密传输与本地安全存储机制保护您的个人信息。本演示版本所有个人资料、地址与订单均仅保存在您的浏览器本地存储中，不会上传至第三方服务器。
+                  当前应用版本的个人资料、常用地址与订单记录均保存在您设备浏览器的本地存储空间中，您可随时在「我的 - 恢复默认演示数据」中一键清空。
                 </p>
               </div>
             </>
@@ -575,60 +692,56 @@ export const UserAgreementPage: React.FC = () => {
   );
 };
 
-/* ===================== 6. 环保积分兑换商城（新增亮点功能） ===================== */
+/* ===================== 6. 积分兑换 ===================== */
 export const PointsMallPage: React.FC = () => {
   const { user, redeemReward } = useApp();
 
   return (
-    <div className="min-h-full bg-[#F4F8F6] pb-10">
-      <SubPageHeader title="环保积分商城" />
+    <div className="min-h-full bg-[#F4F4F1] pb-10">
+      <SubPageHeader title="积分兑换" />
 
-      <div className="p-4 space-y-4">
-        <div className="rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 p-5 text-white shadow-lg flex items-center justify-between">
+      <div className="p-3.5 space-y-3">
+        <div className="rounded-xl bg-[#1D6F5A] p-4 text-white flex items-center justify-between">
           <div>
-            <div className="text-[12px] text-amber-100 flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5" /> 当前可用环保积分
-            </div>
-            <div className="text-3xl font-black tabular-nums mt-1">{user.points}</div>
-            <div className="text-[11px] text-amber-100 mt-1">
-              每一次垃圾分类交投都在创造绿色价值
-            </div>
+            <div className="text-[11.5px] text-white/75">当前可用积分</div>
+            <div className="text-3xl font-bold tabular-nums mt-0.5">{user.points}</div>
+            <div className="text-[11px] text-white/75 mt-1">支持兑换金陵通出行金、清运抵扣券与分类袋</div>
           </div>
-          <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-            <Gift className="w-8 h-8 text-white" />
+          <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center">
+            <Gift className="w-6 h-6 text-white" />
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {POINTS_REWARDS.map((rw) => {
             const affordable = user.points >= rw.points;
             return (
               <div
                 key={rw.id}
-                className="bg-white rounded-2xl p-4 shadow-sm border border-emerald-950/5 flex items-center justify-between gap-3"
+                className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] flex items-center justify-between gap-3"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-2xl flex items-center justify-center shrink-0">
-                    {rw.icon}
+                  <div className="w-10 h-10 rounded-lg bg-[#F4F4F1] text-[#1D6F5A] flex items-center justify-center shrink-0">
+                    <ItemIcon id={rw.id} className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[14px] font-bold text-slate-900 truncate">{rw.name}</div>
-                    <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">{rw.desc}</p>
-                    <div className="text-[12px] font-extrabold text-amber-600 mt-1 tabular-nums">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[13.5px] font-semibold text-zinc-900 truncate">{rw.name}</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">{rw.desc}</p>
+                    <div className="text-[12px] font-bold text-[#1D6F5A] mt-1 tabular-nums">
                       {rw.points} 积分
-                      <span className="text-[10px] font-normal text-slate-400 ml-2">余 {rw.stock} 件</span>
+                      <span className="text-[10.5px] font-normal text-zinc-400 ml-2">余 {rw.stock} 份</span>
                     </div>
                   </div>
                 </div>
                 <button
                   onClick={() => redeemReward(rw.points, rw.name)}
-                  className={`shrink-0 px-3.5 py-2 rounded-xl text-[12px] font-bold transition active:scale-95 ${
-                    affordable
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-400'
+                  className={`shrink-0 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition ${
+                    affordable ? 'bg-[#1D6F5A] text-white' : 'bg-zinc-100 text-zinc-400'
                   }`}
                 >
-                  立即兑换
+                  兑换
                 </button>
               </div>
             );

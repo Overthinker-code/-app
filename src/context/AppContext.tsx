@@ -28,11 +28,13 @@ interface AppContextType {
   updateAddress: (id: string, patch: Partial<Address>) => void;
   deleteAddress: (id: string) => void;
   orders: RecycleOrder[];
-  createOrder: (order: Omit<RecycleOrder, 'id' | 'orderNo' | 'createdAt' | 'timeline'>) => RecycleOrder;
+  createOrder: (order: Omit<RecycleOrder, 'id' | 'orderNo' | 'manifestNo' | 'createdAt' | 'timeline'>) => RecycleOrder;
   cancelOrder: (id: string) => void;
   completeOrder: (id: string) => void;
   addQuickDropoff: (weightKg: number, cashEarned: number, points: number, stationName: string, categoryText: string) => void;
   redeemReward: (pointsCost: number, rewardName: string) => boolean;
+  claimQuizReward: () => void;
+  resetLocalData: () => void;
   activeTab: TabId;
   setActiveTab: (tab: TabId) => void;
   route: AppRoute;
@@ -49,7 +51,7 @@ interface AppContextType {
   showToast: (text: string, type?: ToastMessage['type']) => void;
 }
 
-const STORAGE_KEY = 'jingcai_recycle_app_v1';
+const STORAGE_KEY = 'ninghuishou_nj_v2';
 
 const AppContext = createContext<AppContextType | null>(null);
 
@@ -86,7 +88,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         JSON.stringify({ user, addresses, selectedAddressId, orders })
       );
     } catch {
-      // ignore quota errors
+      // ignore storage quota errors
     }
   }, [user, addresses, selectedAddressId, orders]);
 
@@ -95,7 +97,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setToast({ id, text, type });
     window.setTimeout(() => {
       setToast((prev) => (prev?.id === id ? null : prev));
-    }, 2600);
+    }, 2400);
   };
 
   const route = routeStack[routeStack.length - 1];
@@ -118,7 +120,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addAddress = (addr: Omit<Address, 'id'>) => {
-    const newAddr: Address = { ...addr, id: 'addr-' + Date.now() };
+    const newAddr: Address = { ...addr, id: 'addr-nj-' + Date.now() };
     setAddresses((prev) => {
       const base = newAddr.isDefault ? prev.map((a) => ({ ...a, isDefault: false })) : prev;
       return [newAddr, ...base];
@@ -158,38 +160,45 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const createOrder: AppContextType['createOrder'] = (input) => {
     const nowStr = formatNow();
     const shortTime = nowStr.slice(5);
-    const orderNo = 'JC' + Date.now().toString().slice(-10);
+    const suffix = Date.now().toString().slice(-6);
+    const orderNo = 'NJ2026' + suffix;
+    const manifestNo = `LD-NJ-${suffix.slice(-4)}`;
     const newOrder: RecycleOrder = {
       ...input,
-      id: 'ord-' + Date.now(),
+      id: 'ord-nj-' + Date.now(),
       orderNo,
+      manifestNo,
       createdAt: nowStr,
+      collector: {
+        name: '王师傅',
+        phone: '13851904412',
+        plateNo: '苏A·D6185',
+      },
       timeline: [
         {
           time: shortTime,
-          title: '预约提交成功',
-          desc: `已通知 ${input.providerName} 受理您的预约单`,
+          title: '预约已提交',
+          desc: `已推送至 ${input.providerName}`,
           done: true,
         },
         {
-          time: '预计30分钟内',
-          title: '确认派单与上门时间',
-          desc: '回收师傅接单后将提前致电与您确认',
+          time: '约30分钟内',
+          title: '调度派单确认',
+          desc: '清运/回收人员接单后将提前致电联系',
           done: false,
         },
         {
           time: '待服务',
-          title: input.isFee ? '上门清运与联单确认' : '现场称重与即时结算',
-          desc: input.isFee ? '规范清运至正规处置场并获得环保积分' : '实时结算收益并发放环保积分',
+          title: input.isFee ? '现场清运与联单核销' : '当面称重与结算',
+          desc: input.isFee ? '规范收运至备案处置场并出具电子联单' : '确认重量成色后即时结款并计入积分',
           done: false,
         },
       ],
     };
     setOrders((prev) => [newOrder, ...prev]);
-    // Give instant booking bonus points
     setUser((prev) => ({
       ...prev,
-      points: prev.points + 15,
+      points: prev.points + 10,
     }));
     return newOrder;
   };
@@ -204,13 +213,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               status: 'cancelled',
               timeline: [
                 ...o.timeline,
-                { time: shortTime, title: '订单已取消', desc: '您已主动取消本次预约', done: true },
+                { time: shortTime, title: '订单已取消', desc: '居民主动取消本次预约', done: true },
               ],
             }
           : o
       )
     );
-    showToast('已取消预约订单', 'info');
+    showToast('已取消该预约单', 'info');
   };
 
   const completeOrder = (id: string) => {
@@ -228,10 +237,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 ...o.timeline.map((t) => ({ ...t, done: true })),
                 {
                   time: shortTime,
-                  title: '服务完成并已结算',
+                  title: '核验完成并已结算',
                   desc: o.isFee
-                    ? `规范清运完成，已奖励 +${o.estimatedPoints} 环保积分，减碳 ${carbonGain}kg`
-                    : `收益 ¥${o.estimatedAmount.toFixed(2)} 已到账，+${o.estimatedPoints} 环保积分`,
+                    ? `已完成合规清运，联单 ${o.manifestNo ?? ''} 已归档，+${o.estimatedPoints} 积分`
+                    : `回收款 ¥${o.estimatedAmount.toFixed(2)} 已结算，+${o.estimatedPoints} 积分`,
                   done: true,
                 },
               ],
@@ -247,7 +256,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         ? prev.totalCashEarned
         : Number((prev.totalCashEarned + target.estimatedAmount).toFixed(2)),
     }));
-    showToast(`结算完成！+${target.estimatedPoints} 环保积分，减碳 ${carbonGain}kg`, 'success');
+    showToast(`结算完成，+${target.estimatedPoints} 积分`, 'success');
   };
 
   const addQuickDropoff: AppContextType['addQuickDropoff'] = (
@@ -260,27 +269,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const nowStr = formatNow();
     const shortTime = nowStr.slice(5);
     const carbonGain = Number((weightKg * 1.6).toFixed(1));
+    const suffix = Date.now().toString().slice(-6);
     const order: RecycleOrder = {
-      id: 'ord-' + Date.now(),
-      orderNo: 'JC' + Date.now().toString().slice(-10),
+      id: 'ord-nj-' + Date.now(),
+      orderNo: 'NJ2026' + suffix,
+      manifestNo: `LD-NJ-SM-${suffix.slice(-4)}`,
       category: 'recyclable',
-      categoryLabel: '智能回收机投递',
+      categoryLabel: '智能回收柜投递',
       status: 'completed',
       createdAt: nowStr,
-      appointmentTime: '现场扫码实时投递',
+      appointmentTime: '现场扫码投递',
       addressText: stationName,
       contactName: user.nickname,
       contactPhone: user.phone,
-      providerName: '京彩智能回收终端',
+      providerName: '宁回收社区智能终端',
       itemsSummary: `${categoryText} ${weightKg.toFixed(1)}kg`,
       estimatedAmount: cashEarned,
       isFee: false,
       estimatedPoints: points,
       estimatedWeightKg: weightKg,
       timeline: [
-        { time: shortTime, title: '扫码开箱成功', desc: `已连接 ${stationName}`, done: true },
-        { time: shortTime, title: 'AI 自动称重计量', desc: `识别品类：${categoryText}，净重 ${weightKg.toFixed(1)}kg`, done: true },
-        { time: shortTime, title: '实时返现到账', desc: `获得 ¥${cashEarned.toFixed(2)} 及 +${points} 环保积分`, done: true },
+        { time: shortTime, title: '扫码开箱', desc: `已连接 ${stationName}`, done: true },
+        { time: shortTime, title: '称重计量完成', desc: `品名：${categoryText}，净重 ${weightKg.toFixed(1)}kg`, done: true },
+        { time: shortTime, title: '余额已入账', desc: `入账 ¥${cashEarned.toFixed(2)}，累计 +${points} 积分`, done: true },
       ],
     };
     setOrders((prev) => [order, ...prev]);
@@ -294,12 +305,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const redeemReward = (pointsCost: number, rewardName: string) => {
     if (user.points < pointsCost) {
-      showToast('当前环保积分不足，快去交投赚积分吧', 'warning');
+      showToast('当前积分不足', 'warning');
       return false;
     }
     setUser((prev) => ({ ...prev, points: prev.points - pointsCost }));
-    showToast(`兑换成功！「${rewardName}」已发放至账户`, 'success');
+    showToast(`已兑换「${rewardName}」`, 'success');
     return true;
+  };
+
+  const claimQuizReward = () => {
+    if (user.quizClaimed) return;
+    setUser((prev) => ({ ...prev, points: prev.points + 20, quizClaimed: true }));
+    showToast('测验完成，已发放 +20 积分', 'success');
+  };
+
+  const resetLocalData = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setUser(DEFAULT_USER);
+    setAddresses(DEFAULT_ADDRESSES);
+    setSelectedAddressId(DEFAULT_ADDRESSES[0].id);
+    setOrders(INITIAL_ORDERS);
+    setRouteStack([{ name: 'tabs' }]);
+    setActiveTab('home');
+    showToast('已恢复初始数据', 'info');
   };
 
   return (
@@ -319,6 +347,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         completeOrder,
         addQuickDropoff,
         redeemReward,
+        claimQuizReward,
+        resetLocalData,
         activeTab,
         setActiveTab,
         route,

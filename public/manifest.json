@@ -1,16 +1,9 @@
 {
-  "name": "京彩回收 · 智慧环保回收平台",
-  "short_name": "京彩回收",
-  "description": "可回收物交投、大件垃圾清运、装修垃圾清运与废旧家电回收一站式绿色服务App",
+  "name": "宁回收 · 南京生活回收与清运服务",
+  "short_name": "宁回收",
+  "description": "南京可回收物交投、大件家具清运、装修垃圾清运与废旧家电回收便民服务",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F4F8F6",
-  "theme_color": "#059669",
-  "icons": [
-    {
-      "src": "/images/eco-avatar.jpg",
-      "sizes": "512x512",
-      "type": "image/jpeg"
-    }
-  ]
+  "background_color": "#F4F4F1",
+  "theme_color": "#1D6F5A"
 }

@@ -2,313 +2,325 @@ import React, { useState } from 'react';
 import {
   MapPin,
   ScanLine,
+  QrCode,
   ChevronRight,
-  ChevronsRight,
-  Leaf,
-  TrendingUp,
+  ChevronDown,
   Search,
-  Sparkles,
-  BookOpen,
+  Recycle,
+  Sofa,
+  HardHat,
+  Tv,
+  Building2,
+  ClipboardCheck,
+  Navigation,
+  Store,
+  CalendarClock,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { DAILY_MARKET_PRICES, getUserLevel } from '../data/mockData';
-import {
-  AppliancesIllustration,
-  RenovationIllustration,
-  SmartKioskIllustration,
-} from '../components/ServiceIllustrations';
+import { DAILY_MARKET_PRICES } from '../data/mockData';
+import { ItemIcon, NanjingSkylineBanner, NingLogoMark } from '../components/NanjingVisuals';
 import { CommunityPickerModal } from '../components/Modals';
 
 export const HomePage: React.FC = () => {
-  const { user, navigate, setShowScanner, setShowAppliancePicker } = useApp();
+  const { user, navigate, setShowScanner, setShowQrModal, setShowAppliancePicker } = useApp();
   const [communityOpen, setCommunityOpen] = useState(false);
-  const level = getUserLevel(user.points);
+  const [quickQuery, setQuickQuery] = useState('');
+
+  const handleQuickSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate({ name: 'usage_guide', initialQuery: quickQuery.trim() });
+  };
 
   return (
-    <div className="pb-6 bg-[#F4F8F6] min-h-full">
-      {/* Hero Banner with Generated Beijing Temple of Heaven Art */}
-      <div className="relative h-[228px] overflow-hidden">
-        <img
-          src="/images/hero-beijing-eco.jpg"
-          alt="京彩回收 天坛绿城"
-          className="w-full h-full object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/10 via-transparent to-[#F4F8F6]" />
+    <div className="min-h-full bg-[#F4F4F1] pb-6">
+      {/* Nanjing Editorial Header */}
+      <div className="relative h-[142px] overflow-hidden border-b border-[#E2E6E2]">
+        <NanjingSkylineBanner className="w-full h-full" />
 
-        {/* Top Bar Overlay */}
-        <div className="absolute top-0 inset-x-0 pt-5 px-4 flex items-start justify-between">
-          <div className="flex items-center gap-2.5 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-2xl shadow-sm border border-white/70">
-            <img
-              src="/images/eco-avatar.jpg"
-              alt="Logo"
-              className="w-7 h-7 rounded-full object-cover"
-            />
-            <div>
-              <div className="flex items-center gap-1">
-                <span className="text-[16px] font-extrabold tracking-tight bg-gradient-to-r from-emerald-700 to-sky-700 bg-clip-text text-transparent">
-                  京彩回收
-                </span>
-                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
-                  北京
-                </span>
+        <div className="absolute inset-0 px-4 pt-4 pb-3 flex flex-col justify-between">
+          {/* Top Brand & Utility Actions */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <NingLogoMark className="w-8 h-8" />
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[17px] font-bold tracking-tight text-zinc-900">
+                    宁回收
+                  </span>
+                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/85 border border-[#D4DFDA] text-[#1D6F5A]">
+                    南京
+                  </span>
+                </div>
+                <p className="text-[10.5px] text-zinc-500 -mt-0.5">南京生活回收与清运服务</p>
               </div>
-              <p className="text-[10px] text-slate-500 -mt-0.5">绿动京城 · 智慧循环</p>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setShowQrModal(true)}
+                aria-label="交投码"
+                className="h-8 px-2.5 rounded-lg bg-white/90 border border-[#DCE3DF] text-zinc-700 text-[12px] font-medium flex items-center gap-1 active:bg-zinc-100 transition"
+              >
+                <QrCode className="w-3.5 h-3.5 text-[#1D6F5A]" />
+                <span>交投码</span>
+              </button>
+              <button
+                onClick={() => setShowScanner(true)}
+                aria-label="扫一扫"
+                className="h-8 px-2.5 rounded-lg bg-[#1D6F5A] text-white text-[12px] font-medium flex items-center gap-1 active:bg-[#175C4A] transition"
+              >
+                <ScanLine className="w-3.5 h-3.5" />
+                <span>扫一扫</span>
+              </button>
             </div>
           </div>
 
-          <button
-            onClick={() => setShowScanner(true)}
-            aria-label="扫码交投"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white/85 backdrop-blur-md text-slate-800 shadow-sm border border-white/80 hover:bg-white active:scale-95 transition"
-          >
-            <ScanLine className="w-4 h-4 text-emerald-600" />
-            <span className="text-[12px] font-semibold">扫码交投</span>
-          </button>
+          {/* Location Selector */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setCommunityOpen(true)}
+              className="inline-flex items-center gap-1 bg-white/92 border border-[#DCE3DF] rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-zinc-800 active:bg-zinc-50 transition"
+            >
+              <MapPin className="w-3.5 h-3.5 text-[#1D6F5A] shrink-0" />
+              <span>{user.district} · {user.community}</span>
+              <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+            </button>
+            <button
+              onClick={() => navigate({ name: 'nearby_stations', stationType: 'smart_machine' })}
+              className="text-[11.5px] font-medium text-[#1D6F5A] bg-white/85 px-2.5 py-1.5 rounded-lg border border-[#DCE3DF]"
+            >
+              最近回收柜 160m
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Main Content Container */}
-      <div className="px-4 -mt-12 relative z-10 space-y-3.5">
-        {/* User & Location + Eco Stats Card */}
-        <div className="bg-white rounded-3xl p-4 shadow-[0_8px_28px_-8px_rgba(6,95,70,0.10)] border border-emerald-950/5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="relative shrink-0">
-                <img
-                  src="/images/eco-avatar.jpg"
-                  alt="用户头像"
-                  className="w-12 h-12 rounded-2xl object-cover ring-2 ring-emerald-100 shadow-sm"
-                />
-                <span className="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-md bg-emerald-600 text-white text-[9px] font-bold shadow">
-                  {level.level}
-                </span>
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[15px] font-bold text-slate-900 truncate">
-                    {user.nickname}
-                  </span>
-                </div>
-                <button
-                  onClick={() => setCommunityOpen(true)}
-                  className="mt-1 inline-flex items-center gap-1 text-[12px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100/80 px-2.5 py-0.5 rounded-full transition"
-                >
-                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{user.community}</span>
-                  <ChevronRight className="w-3 h-3 text-emerald-500" />
-                </button>
-              </div>
-            </div>
+      {/* Main Content */}
+      <div className="px-3.5 pt-3 space-y-3">
+        {/* Inline Waste Classification Search */}
+        <form onSubmit={handleQuickSearch} className="relative">
+          <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            value={quickQuery}
+            onChange={(e) => setQuickQuery(e.target.value)}
+            placeholder="查南京分类：小龙虾壳、鸭骨、旧床垫、电池..."
+            className="w-full h-10 pl-9 pr-16 rounded-xl bg-white border border-[#E6E6E1] text-[13px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-[#1D6F5A]"
+          />
+          <button
+            type="submit"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-[#F4F4F1] text-[11.5px] font-medium text-zinc-700 hover:bg-zinc-200/70 transition"
+          >
+            查分类
+          </button>
+        </form>
 
-            <button
-              onClick={() => navigate({ name: 'points_mall' })}
-              className="shrink-0 px-2.5 py-1.5 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-700 text-[11px] font-semibold flex items-center gap-1 active:scale-95 transition"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>兑好礼</span>
-            </button>
-          </div>
-
-          {/* 3-Column Eco Metrics Ribbon */}
-          <div className="grid grid-cols-3 gap-2 mt-3.5 pt-3 border-t border-slate-100">
-            <button
-              onClick={() => navigate({ name: 'points_mall' })}
-              className="text-center rounded-xl py-1 hover:bg-emerald-50/50 transition"
-            >
-              <div className="text-[16px] font-extrabold text-emerald-600 tabular-nums">
-                {user.points}
-              </div>
-              <div className="text-[11px] text-slate-500">环保积分</div>
-            </button>
-            <div className="text-center border-x border-slate-100 py-1">
-              <div className="text-[16px] font-extrabold text-teal-600 tabular-nums">
-                {user.carbonSavedKg.toFixed(1)}
-                <span className="text-[10px] font-semibold ml-0.5">kg</span>
-              </div>
-              <div className="text-[11px] text-slate-500">累计减碳</div>
-            </div>
-            <div className="text-center py-1">
-              <div className="text-[16px] font-extrabold text-slate-800 tabular-nums">
-                ¥{user.totalCashEarned.toFixed(1)}
-              </div>
-              <div className="text-[11px] text-slate-500">累计收益</div>
-            </div>
-          </div>
-        </div>
-
-        {/* 4 Core Service Entry Cards */}
-        <div className="space-y-3">
-          {/* 1. 可回收物交投 */}
+        {/* Primary Service Hero Card: 可回收物交投 */}
+        <div className="bg-white rounded-xl border border-[#E6E6E1] overflow-hidden">
           <button
             onClick={() => navigate({ name: 'recyclables_hub' })}
-            className="w-full relative overflow-hidden rounded-[22px] bg-gradient-to-r from-[#2196F3] via-[#1DB8E8] to-[#22D3EE] p-4 pr-2 text-left text-white shadow-[0_8px_20px_-6px_rgba(14,165,233,0.42)] active:scale-[0.985] transition flex items-center justify-between min-h-[104px]"
+            className="w-full p-4 text-left flex items-center justify-between gap-3 active:bg-zinc-50/80 transition"
           >
-            <div className="z-10 pl-1">
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-[10px] font-semibold mb-1.5">
-                <Leaf className="w-3 h-3" />
-                <span>扫码秒返现 · 高低值统收</span>
+            <div className="flex items-start gap-3">
+              <div className="w-11 h-11 rounded-xl bg-[#EDF5F2] text-[#1D6F5A] flex items-center justify-center shrink-0">
+                <Recycle className="w-6 h-6 stroke-[2]" />
               </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[21px] font-extrabold tracking-tight drop-shadow-sm">
-                  可回收物交投
-                </span>
-                <ChevronsRight className="w-5 h-5 text-white/90" />
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-[16px] font-bold text-zinc-900">可回收物交投</h2>
+                  <span className="text-[10.5px] font-medium px-1.5 py-0.5 rounded bg-[#EDF5F2] text-[#1D6F5A]">
+                    即时结算
+                  </span>
+                </div>
+                <p className="text-[12px] text-zinc-500 mt-0.5 truncate">
+                  纸箱、塑料瓶、金属、旧衣 · 扫码投递或上门收
+                </p>
               </div>
-              <p className="text-[11px] text-white/85 mt-0.5">智能回收机 · 固定交投点 · 上门预约</p>
             </div>
-            <div className="shrink-0 -mr-1">
-              <SmartKioskIllustration className="w-[126px] h-[94px]" />
-            </div>
+            <ChevronRight className="w-4 h-4 text-zinc-400 shrink-0" />
           </button>
 
-          {/* 2. 大件垃圾预约 */}
+          {/* 3 Direct Channel Shortcuts */}
+          <div className="grid grid-cols-3 border-t border-[#F0F0EC] divide-x divide-[#F0F0EC] bg-[#FAFAF8]">
+            <button
+              onClick={() => navigate({ name: 'nearby_stations', stationType: 'smart_machine' })}
+              className="py-2.5 px-2 flex items-center justify-center gap-1.5 text-[12px] font-medium text-zinc-700 hover:text-[#1D6F5A] active:bg-zinc-100 transition"
+            >
+              <Navigation className="w-3.5 h-3.5 text-[#1D6F5A]" />
+              <span>附近回收柜</span>
+            </button>
+            <button
+              onClick={() => navigate({ name: 'nearby_stations', stationType: 'fixed_station' })}
+              className="py-2.5 px-2 flex items-center justify-center gap-1.5 text-[12px] font-medium text-zinc-700 hover:text-[#1D6F5A] active:bg-zinc-100 transition"
+            >
+              <Store className="w-3.5 h-3.5 text-[#1D6F5A]" />
+              <span>固定交投点</span>
+            </button>
+            <button
+              onClick={() => navigate({ name: 'recyclables_booking' })}
+              className="py-2.5 px-2 flex items-center justify-center gap-1.5 text-[12px] font-medium text-zinc-700 hover:text-[#1D6F5A] active:bg-zinc-100 transition"
+            >
+              <CalendarClock className="w-3.5 h-3.5 text-[#1D6F5A]" />
+              <span>预约上门</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 3-Card Asymmetric Utility Grid: 大件 / 装修 / 家电 */}
+        <div className="grid grid-cols-3 gap-2.5">
           <button
             onClick={() => navigate({ name: 'bulky_booking' })}
-            className="w-full relative overflow-hidden rounded-[22px] bg-gradient-to-r from-[#E88D5A] via-[#F2A673] to-[#F3AE7E] p-4 pr-2 text-left text-white shadow-[0_8px_20px_-6px_rgba(234,88,12,0.34)] active:scale-[0.985] transition flex items-center justify-between min-h-[104px]"
+            className="bg-white rounded-xl border border-[#E6E6E1] p-3 text-left flex flex-col justify-between min-h-[116px] active:bg-zinc-50 transition"
           >
-            <div className="z-10 pl-1">
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-[10px] font-semibold mb-1.5">
-                <span>家具拆解 · 透明价格表</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[21px] font-extrabold tracking-tight drop-shadow-sm">
-                  大件垃圾预约
-                </span>
-                <ChevronsRight className="w-5 h-5 text-white/90" />
-              </div>
-              <p className="text-[11px] text-white/90 mt-0.5">沙发床垫衣柜 · 正规上门清运</p>
+            <div className="w-9 h-9 rounded-lg bg-[#FDF4EC] text-[#B45309] flex items-center justify-center">
+              <Sofa className="w-5 h-5" />
             </div>
-            <div className="w-[106px] h-[92px] rounded-2xl overflow-hidden shrink-0 mr-1 shadow-inner">
-              <img
-                src="/images/card-bulky.jpg"
-                alt="大件垃圾"
-                className="w-full h-full object-cover scale-110"
-              />
+            <div className="mt-2.5">
+              <div className="text-[13.5px] font-bold text-zinc-900">大件清运</div>
+              <div className="text-[11px] text-zinc-500 mt-0.5 leading-tight">沙发床垫衣柜</div>
+              <div className="text-[11px] font-semibold text-[#B45309] mt-1 tabular-nums">¥40 起</div>
             </div>
           </button>
 
-          {/* 3. 装修垃圾预约 */}
           <button
             onClick={() => navigate({ name: 'renovation_hub' })}
-            className="w-full relative overflow-hidden rounded-[22px] bg-gradient-to-r from-[#87827E] via-[#9E9994] to-[#B8B3AD] p-4 pr-2 text-left text-white shadow-[0_8px_20px_-6px_rgba(87,83,78,0.35)] active:scale-[0.985] transition flex items-center justify-between min-h-[104px]"
+            className="bg-white rounded-xl border border-[#E6E6E1] p-3 text-left flex flex-col justify-between min-h-[116px] active:bg-zinc-50 transition"
           >
-            <div className="z-10 pl-1">
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-[10px] font-semibold mb-1.5">
-                <span>持证处置场 · 电子联单溯源</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[21px] font-extrabold tracking-tight drop-shadow-sm">
-                  装修垃圾预约
-                </span>
-                <ChevronsRight className="w-5 h-5 text-white/90" />
-              </div>
-              <p className="text-[11px] text-white/90 mt-0.5">袋装按袋/按方 · 政策与单位查询</p>
+            <div className="w-9 h-9 rounded-lg bg-[#F1F3F5] text-[#475569] flex items-center justify-center">
+              <HardHat className="w-5 h-5" />
             </div>
-            <div className="shrink-0 -mr-1">
-              <RenovationIllustration className="w-[126px] h-[94px]" />
+            <div className="mt-2.5">
+              <div className="text-[13.5px] font-bold text-zinc-900">装修垃圾</div>
+              <div className="text-[11px] text-zinc-500 mt-0.5 leading-tight">规范电子联单</div>
+              <div className="text-[11px] font-semibold text-zinc-700 mt-1 tabular-nums">¥7.5/袋起</div>
             </div>
           </button>
 
-          {/* 4. 家电回收预约 */}
           <button
             onClick={() => setShowAppliancePicker(true)}
-            className="w-full relative overflow-hidden rounded-[22px] bg-gradient-to-r from-[#22B573] via-[#34D399] to-[#5EEAD4] p-4 pr-2 text-left text-white shadow-[0_8px_20px_-6px_rgba(16,185,129,0.36)] active:scale-[0.985] transition flex items-center justify-between min-h-[104px]"
+            className="bg-white rounded-xl border border-[#E6E6E1] p-3 text-left flex flex-col justify-between min-h-[116px] active:bg-zinc-50 transition"
           >
-            <div className="z-10 pl-1">
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-[10px] font-semibold mb-1.5">
-                <span>京东 / 中再生 · 免费上门拆机</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[21px] font-extrabold tracking-tight drop-shadow-sm">
-                  家电回收预约
-                </span>
-                <ChevronsRight className="w-5 h-5 text-white/90" />
-              </div>
-              <p className="text-[11px] text-white/90 mt-0.5">在线即时估价 · 以旧换新补贴</p>
+            <div className="w-9 h-9 rounded-lg bg-[#EDF6F6] text-[#0F766E] flex items-center justify-center">
+              <Tv className="w-5 h-5" />
             </div>
-            <div className="shrink-0 -mr-1">
-              <AppliancesIllustration className="w-[126px] h-[94px]" />
+            <div className="mt-2.5">
+              <div className="text-[13.5px] font-bold text-zinc-900">家电回收</div>
+              <div className="text-[11px] text-zinc-500 mt-0.5 leading-tight">免费拆机估价</div>
+              <div className="text-[11px] font-semibold text-[#0F766E] mt-1">以旧换新</div>
             </div>
           </button>
         </div>
 
-        {/* Today's Live Recyclable Price Strip */}
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-emerald-950/5">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-1.5">
-              <TrendingUp className="w-4 h-4 text-emerald-600" />
-              <h2 className="text-[14px] font-bold text-slate-900">今日回收参考价</h2>
+        {/* Account Compact Strip */}
+        <div className="bg-white rounded-xl border border-[#E6E6E1] px-3.5 py-3 flex items-center justify-between">
+          <div className="grid grid-cols-3 gap-4 flex-1">
+            <div>
+              <div className="text-[11px] text-zinc-500">可用积分</div>
+              <div className="text-[16px] font-bold text-zinc-900 tabular-nums mt-0.5">
+                {user.points}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] text-zinc-500">累计收益</div>
+              <div className="text-[16px] font-bold text-[#1D6F5A] tabular-nums mt-0.5">
+                ¥{user.totalCashEarned.toFixed(1)}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] text-zinc-500">累计减碳</div>
+              <div className="text-[16px] font-bold text-zinc-900 tabular-nums mt-0.5">
+                {user.carbonSavedKg.toFixed(1)}
+                <span className="text-[10.5px] font-normal text-zinc-500 ml-0.5">kg</span>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate({ name: 'points_mall' })}
+            className="shrink-0 pl-3 border-l border-[#F0F0EC] text-[12px] font-semibold text-[#1D6F5A] flex items-center gap-0.5"
+          >
+            <span>兑换</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Today's Nanjing Reference Market Prices */}
+        <div className="bg-white rounded-xl border border-[#E6E6E1] p-3.5">
+          <div className="flex items-center justify-between mb-2.5">
+            <div>
+              <h3 className="text-[14px] font-bold text-zinc-900">南京今日废品参考价</h3>
+              <p className="text-[11px] text-zinc-400">主城区交投点实时挂牌均价</p>
             </div>
             <button
               onClick={() => navigate({ name: 'recyclables_booking' })}
-              className="text-[11px] font-semibold text-emerald-600 flex items-center"
+              className="text-[12px] font-medium text-[#1D6F5A] flex items-center"
             >
-              <span>预约变现</span>
+              <span>去预约</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
-          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-0.5">
+
+          <div className="grid grid-cols-3 gap-2">
             {DAILY_MARKET_PRICES.map((item) => (
               <button
                 key={item.id}
                 onClick={() => navigate({ name: 'recyclables_booking' })}
-                className="shrink-0 w-[108px] rounded-2xl bg-[#F6FAF8] border border-emerald-100/80 p-2.5 text-left hover:border-emerald-300 transition"
+                className="rounded-lg bg-[#FAFAF8] border border-[#ECECE8] p-2.5 text-left hover:border-[#1D6F5A]/40 transition"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-lg">{item.icon}</span>
-                  <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-100/70 px-1.5 py-0.5 rounded-full">
+                  <ItemIcon id={item.id} className="w-4 h-4 text-zinc-600" />
+                  <span
+                    className={`text-[10px] font-medium tabular-nums ${
+                      item.trend.startsWith('+') ? 'text-[#1D6F5A]' : 'text-zinc-400'
+                    }`}
+                  >
                     {item.trend}
                   </span>
                 </div>
-                <div className="text-[12px] font-semibold text-slate-800 truncate mt-1.5">
-                  {item.name.split('/')[0]}
+                <div className="text-[12px] font-medium text-zinc-800 mt-1.5 truncate">
+                  {item.shortName}
                 </div>
-                <div className="text-[14px] font-extrabold text-emerald-700 tabular-nums mt-0.5">
-                  ¥{item.price.toFixed(1)}
-                  <span className="text-[10px] font-normal text-slate-500">/{item.unit.split('/')[1]}</span>
+                <div className="text-[13.5px] font-bold text-zinc-900 tabular-nums mt-0.5">
+                  ¥{item.price.toFixed(item.price < 1 ? 2 : 1)}
+                  <span className="text-[10px] font-normal text-zinc-400">/kg</span>
                 </div>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Quick Tools: Smart Waste Classifier & Policy Hub */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Local Civic Utilities */}
+        <div className="grid grid-cols-2 gap-2.5">
           <button
-            onClick={() => navigate({ name: 'usage_guide' })}
-            className="bg-white rounded-2xl p-3.5 border border-emerald-950/5 shadow-sm text-left flex items-center gap-2.5 active:scale-[0.98] transition"
+            onClick={() => navigate({ name: 'renovation_units' })}
+            className="bg-white rounded-xl border border-[#E6E6E1] p-3 text-left flex items-center gap-2.5 active:bg-zinc-50 transition"
           >
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <Search className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-lg bg-zinc-100 text-zinc-700 flex items-center justify-center shrink-0">
+              <Building2 className="w-4.5 h-4.5" />
             </div>
             <div className="min-w-0">
-              <div className="text-[13px] font-bold text-slate-900">分类查一查</div>
-              <div className="text-[11px] text-slate-500 truncate">不确定怎么扔？</div>
+              <div className="text-[13px] font-semibold text-zinc-900 truncate">备案清运单位</div>
+              <div className="text-[11px] text-zinc-500 truncate">城管资质与收费表</div>
             </div>
           </button>
 
           <button
-            onClick={() => navigate({ name: 'renovation_hub' })}
-            className="bg-white rounded-2xl p-3.5 border border-emerald-950/5 shadow-sm text-left flex items-center gap-2.5 active:scale-[0.98] transition"
+            onClick={() => navigate({ name: 'usage_guide' })}
+            className="bg-white rounded-xl border border-[#E6E6E1] p-3 text-left flex items-center gap-2.5 active:bg-zinc-50 transition"
           >
-            <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
-              <BookOpen className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-lg bg-[#EDF5F2] text-[#1D6F5A] flex items-center justify-center shrink-0">
+              <ClipboardCheck className="w-4.5 h-4.5" />
             </div>
             <div className="min-w-0">
-              <div className="text-[13px] font-bold text-slate-900">政策与活动</div>
-              <div className="text-[11px] text-slate-500 truncate">双倍积分进行中</div>
+              <div className="text-[13px] font-semibold text-zinc-900 truncate">南京分类自测</div>
+              <div className="text-[11px] text-zinc-500 truncate">
+                {user.quizClaimed ? '已通过 · 随时复查' : '5题速测领 20 积分'}
+              </div>
             </div>
           </button>
         </div>
 
-        {/* Slogan Footer */}
-        <div className="pt-3 pb-2 text-center">
-          <div className="inline-flex items-center gap-2 text-[14px] font-extrabold tracking-widest text-emerald-900/75">
-            <span className="w-4 h-0.5 rounded-full bg-emerald-400" />
-            <span>垃圾分类 我们一起来</span>
-            <span className="w-4 h-0.5 rounded-full bg-emerald-400" />
-          </div>
-          <p className="text-[10px] text-slate-400 mt-1">北京市生活垃圾与再生资源便民服务示范平台</p>
+        {/* Subtle Civic Footer */}
+        <div className="pt-2 pb-1 text-center text-[11px] text-zinc-400">
+          依据《南京市生活垃圾管理条例》提供便民回收与清运指引
         </div>
       </div>
 
