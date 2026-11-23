@@ -31,26 +31,26 @@ export const RenovationHubPage: React.FC = () => {
       <SubPageHeader title="装修垃圾清运" />
 
       <div className="p-3.5 space-y-3">
-        {/* Resident Status Banner */}
-        <div className="rounded-xl bg-[#263238] p-4 text-white">
-          <div className="flex items-center justify-between">
+        {/* Nanjing Ming City Wall Photographic Banner */}
+        <div className="relative h-32 rounded-xl overflow-hidden border border-black/8">
+          <img
+            src="/images/nj-ming-wall.jpg"
+            alt="南京明城墙与大报恩寺塔"
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/20" />
+          <div className="absolute inset-x-4 bottom-3 flex items-end justify-between text-white">
             <div>
-              <div className="text-[15px] font-semibold">{user.nickname}</div>
-              <div className="text-[11.5px] text-zinc-300 mt-0.5">
-                南京市{user.district} · {user.community}
+              <div className="inline-flex items-center gap-1 text-[10.5px] text-emerald-300 font-medium">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>南京城管备案 · 一车一电子联单</span>
               </div>
+              <div className="text-[16px] font-bold mt-0.5">装修垃圾规范清运</div>
             </div>
             <div className="text-right">
-              <div className="text-[10.5px] text-zinc-400">可用积分</div>
-              <div className="text-lg font-bold tabular-nums">{user.points}</div>
+              <div className="text-[10px] text-white/70">{user.district}</div>
+              <div className="text-[12px] font-semibold">{user.community}</div>
             </div>
-          </div>
-          <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px] text-zinc-300">
-            <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              南京市城管部门备案清运单位直连
-            </span>
-            <span>一车一电子联单</span>
           </div>
         </div>
 
@@ -112,18 +112,28 @@ export const RenovationHubPage: React.FC = () => {
               <button
                 key={art.id}
                 onClick={() => setReadingArticle(art)}
-                className="w-full py-3 first:pt-1 last:pb-1 text-left flex items-start justify-between gap-2.5"
+                className="w-full py-3 first:pt-1 last:pb-1 text-left flex items-center justify-between gap-3"
               >
-                <div className="min-w-0">
-                  <h3 className="text-[13.5px] font-semibold text-zinc-900 leading-snug">{art.title}</h3>
-                  <p className="text-[12px] text-zinc-500 mt-1 line-clamp-2">{art.summary}</p>
-                  <div className="mt-1.5 flex items-center gap-2 text-[11px] text-zinc-400">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-[13.5px] font-semibold text-zinc-900 leading-snug line-clamp-2">
+                    {art.title}
+                  </h3>
+                  <p className="text-[11.5px] text-zinc-500 mt-1 line-clamp-1">{art.summary}</p>
+                  <div className="mt-1.5 flex items-center gap-2 text-[10.5px] text-zinc-400">
                     <span>{art.source}</span>
                     <span>·</span>
                     <span className="tabular-nums">{art.date}</span>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-zinc-300 shrink-0 mt-1" />
+                {art.image ? (
+                  <img
+                    src={art.image}
+                    alt={art.title}
+                    className="w-[82px] h-[60px] rounded-lg object-cover shrink-0 border border-black/5"
+                  />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-zinc-300 shrink-0" />
+                )}
               </button>
             ))}
           </div>

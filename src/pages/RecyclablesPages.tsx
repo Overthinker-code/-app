@@ -30,42 +30,37 @@ import {
 import { ItemIcon } from '../components/NanjingVisuals';
 import { NanjingMap } from '../components/NanjingMap';
 
-/* ===================== 1. 可回收物交投总览 ===================== */
+/* ===================== 1. 可回收物交投总览（图文精简版） ===================== */
 export const RecyclablesHubPage: React.FC = () => {
   const { navigate } = useApp();
 
   const channels = [
     {
       title: '智能回收柜',
-      subtitle: '24小时扫码开箱 · 称重即时入账',
-      desc: '高低值统收、自动称重计量、关门即结款。支持废纸、塑料瓶、金属、旧衣物等日常交投。',
-      btnText: '查看附近回收柜',
+      tag: '24h 扫码秒结',
+      image: '/images/mat-bottles.jpg',
       icon: Package,
       onClick: () => navigate({ name: 'nearby_stations', stationType: 'smart_machine' }),
     },
     {
       title: '固定交投点',
-      subtitle: '社区专人值守 · 现场复秤结款',
-      desc: '设于南京各小区及社区广场的定时值守交投点，支持全品类回收与玻璃瓶、泡沫箱等低值物代收。',
-      btnText: '查看固定交投点',
+      tag: '专人复秤结算',
+      image: '/images/mat-metal.jpg',
       icon: Store,
       onClick: () => navigate({ name: 'nearby_stations', stationType: 'fixed_station' }),
     },
     {
-      title: '中转站（分拣中心）',
-      subtitle: '大宗纸箱金属 · 分拣直收价',
-      desc: '面向居民与沿街商户提供集中交投、规范打包与转运服务，50kg 以上大宗废品享分拣直收价。',
-      btnText: '查看分拣中心',
+      title: '分拣中心',
+      tag: '大宗直收价',
+      image: '/images/mat-textile.jpg',
       icon: Warehouse,
       onClick: () => navigate({ name: 'nearby_stations', stationType: 'sorting_center' }),
     },
     {
-      title: '预约上门回收',
-      subtitle: '满 5 公斤预约 · 支持敬老助搬',
-      desc: '针对家中囤积大宗纸箱旧物，以及高龄或行动不便居民提供免费预约上门称重服务。',
-      btnText: '预约上门',
+      title: '预约上门',
+      tag: '满5kg免费收',
+      image: '/images/svc-recyclables.jpg',
       icon: CalendarClock,
-      primary: true,
       onClick: () => navigate({ name: 'recyclables_booking' }),
     },
   ];
@@ -73,40 +68,51 @@ export const RecyclablesHubPage: React.FC = () => {
   return (
     <div className="min-h-full bg-[#F4F4F1] pb-8">
       <SubPageHeader title="可回收物交投" />
-      <div className="p-3.5 space-y-2.5">
-        {channels.map((ch) => {
-          const Icon = ch.icon;
-          return (
-            <div
-              key={ch.title}
-              className="bg-white rounded-xl p-4 border border-[#E6E6E1]"
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#EDF5F2] text-[#1D6F5A] flex items-center justify-center shrink-0">
-                  <Icon className="w-5 h-5" />
+
+      <div className="p-3.5 space-y-3">
+        {/* Visual Hero Strip */}
+        <div className="relative h-32 rounded-xl overflow-hidden border border-black/8">
+          <img
+            src="/images/svc-recyclables.jpg"
+            alt="可回收物"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
+          <div className="absolute inset-y-0 left-4 flex flex-col justify-center text-white">
+            <span className="text-[11px] text-emerald-300 font-medium">南京高低值统收</span>
+            <h2 className="text-[18px] font-bold mt-0.5">纸箱 · 塑料 · 金属 · 旧衣</h2>
+            <p className="text-[11.5px] text-white/80 mt-0.5">就近扫码投递或预约上门</p>
+          </div>
+        </div>
+
+        {/* 2x2 Visual Channel Cards */}
+        <div className="grid grid-cols-2 gap-2.5">
+          {channels.map((ch) => {
+            const Icon = ch.icon;
+            return (
+              <button
+                key={ch.title}
+                onClick={ch.onClick}
+                className="bg-white rounded-xl border border-[#E6E6E1] overflow-hidden text-left active:scale-[0.985] transition"
+              >
+                <div className="relative h-24 w-full overflow-hidden">
+                  <img src={ch.image} alt={ch.title} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  <div className="absolute top-2 left-2 w-7 h-7 rounded-lg bg-white/90 text-[#1D6F5A] flex items-center justify-center">
+                    <Icon className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-[15.5px] font-bold text-zinc-900">{ch.title}</h2>
-                  <p className="text-[11.5px] text-zinc-500 mt-0.5">{ch.subtitle}</p>
+                <div className="p-2.5 flex items-center justify-between">
+                  <div>
+                    <div className="text-[14px] font-bold text-zinc-900">{ch.title}</div>
+                    <div className="text-[11px] text-zinc-500 mt-0.5">{ch.tag}</div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-zinc-300 shrink-0" />
                 </div>
-              </div>
-              <p className="text-[12.5px] leading-relaxed text-zinc-600 mt-2.5">{ch.desc}</p>
-              <div className="mt-3.5 flex justify-end">
-                <button
-                  onClick={ch.onClick}
-                  className={`px-4 py-2 rounded-lg text-[12.5px] font-semibold inline-flex items-center gap-1 transition ${
-                    ch.primary
-                      ? 'bg-[#1D6F5A] text-white active:bg-[#175C4A]'
-                      : 'bg-[#F4F4F1] text-zinc-800 hover:bg-zinc-200/70'
-                  }`}
-                >
-                  <span>{ch.btnText}</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          );
-        })}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

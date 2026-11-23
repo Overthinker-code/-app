@@ -456,6 +456,20 @@ export const UsageGuidePage: React.FC<{ initialQuery?: string }> = ({ initialQue
       </div>
 
       <div className="p-3.5 space-y-3">
+        {/* Nanjing Ming Xiaoling Visual Banner */}
+        <div className="relative h-24 rounded-xl overflow-hidden border border-black/8">
+          <img
+            src="/images/nj-ming-forest.jpg"
+            alt="南京明孝陵红墙绿荫"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+          <div className="absolute inset-y-0 left-3.5 flex flex-col justify-center text-white">
+            <div className="text-[15px] font-bold">南京四分类速查</div>
+            <div className="text-[11px] text-white/80 mt-0.5">可回收 · 厨余 · 有害 · 其他</div>
+          </div>
+        </div>
+
         {mode === 'lookup' && (
           <>
             <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2.5">

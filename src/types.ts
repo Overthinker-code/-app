@@ -109,6 +109,7 @@ export interface KnowledgeArticle {
   source: string;
   date: string;
   tag: string;
+  image?: string;
   summary: string;
   content: string[];
 }

@@ -175,22 +175,28 @@ export const ApplianceBookingPage: React.FC<{ initialProvider?: string }> = ({
           </div>
         </div>
 
-        {/* Valuation Card */}
-        <div className="rounded-xl bg-[#1D6F5A] p-4 text-white">
-          <div className="flex items-center justify-between">
+        {/* Visual Valuation Banner */}
+        <div className="relative h-28 rounded-xl overflow-hidden border border-black/8">
+          <img
+            src="/images/svc-washer.jpg"
+            alt="废旧家电回收"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#134E3F]/92 via-[#1D6F5A]/75 to-black/35" />
+          <div className="absolute inset-0 px-4 flex items-center justify-between text-white">
             <div>
-              <div className="text-[11px] text-white/75">在线参考估价（含换新补贴）</div>
-              <div className="text-2xl font-bold tabular-nums mt-1">¥ {totalPayout}</div>
+              <div className="text-[11px] text-white/80">在线参考估价（含补贴）</div>
+              <div className="text-2xl font-bold tabular-nums mt-0.5">¥ {totalPayout}</div>
+              <div className="text-[10.5px] text-emerald-200 mt-0.5 flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3" />
+                <span>免费拆机 · 当面结款</span>
+              </div>
             </div>
-            <div className="text-right text-[11px] space-y-0.5 text-white/80 tabular-nums">
-              <div>基础残值：¥{baseValuation}</div>
-              <div>拆旧补贴：+¥{subsidyBonus}</div>
-              <div className="text-white font-semibold">同步计入 +{points} 积分</div>
+            <div className="text-right text-[11px] space-y-0.5 text-white/85 tabular-nums">
+              <div>基础价 ¥{baseValuation}</div>
+              <div>补贴 +¥{subsidyBonus}</div>
+              <div className="font-semibold text-white">+{points} 积分</div>
             </div>
-          </div>
-          <div className="mt-3 pt-2.5 border-t border-white/15 flex items-center gap-1.5 text-[11px] text-white/80">
-            <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-            <span>当面质检即时结算 · 交由江苏合规拆解企业处理</span>
           </div>
         </div>
 

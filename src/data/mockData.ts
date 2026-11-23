@@ -86,12 +86,12 @@ export const DEFAULT_ADDRESSES: Address[] = [
 ];
 
 export const DAILY_MARKET_PRICES = [
-  { id: 'paper', name: '黄板纸 / 快递箱', shortName: '废纸箱', price: 1.1, unit: '元/kg', trend: '+0.05', carbonPerKg: 1.3 },
-  { id: 'plastic', name: 'PET 塑料瓶', shortName: '塑料瓶', price: 1.6, unit: '元/kg', trend: '持平', carbonPerKg: 2.1 },
-  { id: 'metal', name: '废铁 / 易拉罐', shortName: '废金属', price: 2.4, unit: '元/kg', trend: '+0.1', carbonPerKg: 3.5 },
-  { id: 'textile', name: '旧衣物 / 家纺', shortName: '旧衣物', price: 0.7, unit: '元/kg', trend: '持平', carbonPerKg: 2.8 },
-  { id: 'glass', name: '玻璃瓶（完整）', shortName: '废玻璃', price: 0.35, unit: '元/kg', trend: '持平', carbonPerKg: 0.7 },
-  { id: 'ewaste', name: '旧数码 / 线材', shortName: '小电子', price: 4.2, unit: '元/kg', trend: '+0.2', carbonPerKg: 4.2 },
+  { id: 'paper', name: '黄板纸 / 快递箱', shortName: '废纸箱', price: 1.1, unit: '元/kg', trend: '+0.05', carbonPerKg: 1.3, image: '/images/svc-recyclables.jpg' },
+  { id: 'plastic', name: 'PET 塑料瓶', shortName: '塑料瓶', price: 1.6, unit: '元/kg', trend: '持平', carbonPerKg: 2.1, image: '/images/mat-bottles.jpg' },
+  { id: 'metal', name: '废铁 / 易拉罐', shortName: '废金属', price: 2.4, unit: '元/kg', trend: '+0.1', carbonPerKg: 3.5, image: '/images/mat-metal.jpg' },
+  { id: 'textile', name: '旧衣物 / 家纺', shortName: '旧衣物', price: 0.7, unit: '元/kg', trend: '持平', carbonPerKg: 2.8, image: '/images/mat-textile.jpg' },
+  { id: 'glass', name: '玻璃瓶（完整）', shortName: '废玻璃', price: 0.35, unit: '元/kg', trend: '持平', carbonPerKg: 0.7, image: '/images/nj-hero-zifeng.jpg' },
+  { id: 'ewaste', name: '旧数码 / 线材', shortName: '小电子', price: 4.2, unit: '元/kg', trend: '+0.2', carbonPerKg: 4.2, image: '/images/svc-appliances.jpg' },
 ];
 
 export const RECYCLABLE_PROVIDERS = [
@@ -383,11 +383,12 @@ export const KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
   {
     id: 'art-nj-1',
     tab: 'policy',
-    title: '《南京市生活垃圾管理条例》居民分类投放核心要点',
-    source: '南京市城市管理局',
+    title: '《南京市生活垃圾管理条例》要点',
+    source: '南京市城管局',
     date: '2026-04-12',
-    tag: '条例解读',
-    summary: '明确南京市实行可回收物、有害垃圾、厨余垃圾、其他垃圾四分类标准，大件与装修垃圾严禁混投。',
+    tag: '条例',
+    image: '/images/nj-ming-forest.jpg',
+    summary: '四分类投放标准，大件与装修垃圾单独预约清运。',
     content: [
       '一、分类标准：南京市生活垃圾分为可回收物（蓝）、有害垃圾（红）、厨余垃圾（绿）、其他垃圾（灰）四类。',
       '二、大件垃圾管理：废旧沙发、床垫、衣柜等体积较大的废弃家具，不得投放到普通生活垃圾收集点，应投放至物业指定的大件垃圾暂存点或线上预约合规车辆上门清运。',
@@ -398,11 +399,12 @@ export const KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
   {
     id: 'art-nj-2',
     tab: 'policy',
-    title: '南京主城区及江北新区装修垃圾“电子联单”清运指引',
-    source: '南京市建筑垃圾管理处',
+    title: '南京装修垃圾“电子联单”指引',
+    source: '南京建筑垃圾管理处',
     date: '2026-06-18',
-    tag: '办事指南',
-    summary: '通过线上平台报备清运后自动生成电子联单，一车一单全程追踪，杜绝黑车偷倒乱收费。',
+    tag: '联单',
+    image: '/images/nj-ming-wall.jpg',
+    summary: '一车一单全程可查，杜绝黑车乱收费。',
     content: [
       '1. 居民装修开工前，可向小区物业报备，或在「宁回收 -> 装修垃圾预约」中选择所属行政区、街道与小区，如实填写预估袋数或方数。',
       '2. 系统公示具备《城市建筑垃圾处置核准证》的正规清运处置企业及按袋/按方参考收费标准，居民自主比价下单。',
@@ -412,11 +414,12 @@ export const KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
   {
     id: 'art-nj-3',
     tab: 'guide',
-    title: '南京居民装修垃圾装袋与堆放规范（90×120cm）',
-    source: '宁回收服务指引',
+    title: '装修垃圾装袋规范（90×120cm）',
+    source: '宁回收指引',
     date: '2026-08-05',
-    tag: '投放指南',
-    summary: '砖石渣土、废木板与可回收纸箱分开归集，清运更省钱、现场不扬尘。',
+    tag: '装袋',
+    image: '/images/svc-renovation.jpg',
+    summary: '砖渣、废木与纸箱分类装袋，清运更划算。',
     content: [
       '1. 砖渣与碎瓷砖：使用加厚 90×120cm 编织袋装至七分满（每袋约 15-20kg），扎紧袋口防止撒漏。',
       '2. 门窗与木板：拔除裸露铁钉，捆扎长度控制在 1.5 米以内，便于装车。',
@@ -427,11 +430,12 @@ export const KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
   {
     id: 'art-nj-4',
     tab: 'guide',
-    title: '废旧家电以旧换新与安全拆机注意事项',
-    source: '宁回收服务指引',
+    title: '旧家电安全拆机与以旧换新',
+    source: '宁回收指引',
     date: '2026-09-14',
-    tag: '投放指南',
-    summary: '空调制冷剂与老旧显像管含受控物质，切勿私自拆解，请由持证人员免费上门拆运。',
+    tag: '家电',
+    image: '/images/svc-washer.jpg',
+    summary: '持证工程师免费拆机，当面质检结款。',
     content: [
       '1. 预约前请确认家电大致尺寸及楼栋电梯情况；空调外机如需高空作业，正规合作企业（如苏宁帮客、京东回收）均配备持证高空作业人员。',
       '2. 废旧手机、电脑交投前请提前备份并清除个人数据，恢复出厂设置。',
@@ -441,11 +445,12 @@ export const KNOWLEDGE_ARTICLES: KnowledgeArticle[] = [
   {
     id: 'art-nj-5',
     tab: 'activity',
-    title: '南京秋季「梧桐叶落 · 换新返积分」社区便民回收活动',
-    source: '南京社区便民通知',
+    title: '南京社区秋季换新返积分活动',
+    source: '社区便民通知',
     date: '2026-11-01',
     tag: '进行中',
-    summary: '11月每周六上午在玄武、鼓楼、建邺重点小区增设流动称重点，交投满 5kg 额外加赠 50 积分。',
+    image: '/images/nj-hero-xuanwu.jpg',
+    summary: '每周六主城合作小区交投满 5kg 额外赠 50 积分。',
     content: [
       '活动时间：2026年11月1日 — 2026年11月30日。',
       '活动范围：玄武区、鼓楼区、建邺区、秦淮区、栖霞区合作小区智能回收机及便民交投点。',

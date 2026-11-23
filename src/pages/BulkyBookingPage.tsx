@@ -111,8 +111,23 @@ export const BulkyBookingPage: React.FC = () => {
       <SubPageHeader title="大件垃圾预约清运" />
 
       <div className="p-3.5 space-y-3">
-        <div className="rounded-lg bg-[#FDF4EC] border-l-3 border-[#B45309] px-3 py-2 text-[12px] text-amber-950">
-          按南京大件垃圾规范收运标准明码标价，最终费用以师傅现场核验为准。
+        {/* Visual Hero Banner */}
+        <div className="relative h-28 rounded-xl overflow-hidden border border-black/8">
+          <img src="/images/svc-bulky.jpg" alt="大件家具清运" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-black/15" />
+          <div className="absolute inset-0 px-4 flex items-center justify-between text-white">
+            <div>
+              <div className="text-[16px] font-bold">大件家具规范清运</div>
+              <div className="text-[11.5px] text-white/80 mt-0.5">沙发 · 床垫 · 衣柜 · 明码标价</div>
+            </div>
+            <button
+              onClick={() => setShowPriceTable(true)}
+              className="px-2.5 py-1.5 rounded-lg bg-white/90 text-zinc-900 text-[11.5px] font-semibold inline-flex items-center gap-1"
+            >
+              <ReceiptText className="w-3.5 h-3.5 text-[#B45309]" />
+              <span>价目表</span>
+            </button>
+          </div>
         </div>
 
         {/* Address */}
