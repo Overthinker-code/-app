@@ -1,0 +1,16 @@
+{
+  "name": "京彩回收 · 智慧环保回收平台",
+  "short_name": "京彩回收",
+  "description": "可回收物交投、大件垃圾清运、装修垃圾清运与废旧家电回收一站式绿色服务App",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F4F8F6",
+  "theme_color": "#059669",
+  "icons": [
+    {
+      "src": "/images/eco-avatar.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
