@@ -21,6 +21,7 @@ interface AppContextType {
   user: UserProfile;
   updateUser: (patch: Partial<EditableProfile>) => void;
   addresses: Address[];
+  currentAddress: Address | undefined;
   selectedAddressId: string;
   setSelectedAddressId: (id: string) => void;
   addAddress: (addr: Omit<Address, 'id'>) => Address;
@@ -39,7 +40,7 @@ interface AppContextType {
   route: AppRoute;
   navigate: (next: AppRoute) => void;
   goBack: () => void;
-  goHome: () => void;
+  openOrders: () => void;
   showScanner: boolean;
   setShowScanner: (v: boolean) => void;
   showQrModal: boolean;
@@ -49,6 +50,24 @@ interface AppContextType {
   storageIssue: boolean;
   toast: ToastMessage | null;
   showToast: (text: string, type?: ToastMessage['type']) => void;
+}
+
+function createOrderIdentity(manifestPrefix: string) {
+  const suffix = Date.now().toString().slice(-6);
+  return {
+    id: 'ord-nj-' + Date.now(),
+    orderNo: 'NJ2026' + suffix,
+    manifestNo: manifestPrefix + suffix.slice(-4),
+  };
+}
+
+function addSettlement(user: UserProfile, points: number, carbonGain: number, cash?: number): UserProfile {
+  return {
+    ...user,
+    points: user.points + points,
+    carbonSavedKg: Number((user.carbonSavedKg + carbonGain).toFixed(1)),
+    totalCashEarned: cash === undefined ? user.totalCashEarned : Number((user.totalCashEarned + cash).toFixed(2)),
+  };
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -122,9 +141,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRouteStack((prev) => (prev.length > 1 ? prev.slice(0, -1) : [{ name: 'tabs' }]));
   };
 
-  const goHome = () => {
-    setRouteStack([{ name: 'tabs' }]);
-    setActiveTab('home');
+  const openOrders = () => {
+    navigate({ name: 'tabs' });
+    setActiveTab('orders');
   };
 
   const updateUser = (patch: Partial<EditableProfile>) => {
@@ -185,14 +204,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const createOrder: AppContextType['createOrder'] = (input) => {
     const nowStr = formatNow();
     const shortTime = nowStr.slice(5);
-    const suffix = Date.now().toString().slice(-6);
-    const orderNo = 'NJ2026' + suffix;
-    const manifestNo = `LD-NJ-${suffix.slice(-4)}`;
     const newOrder: RecycleOrder = {
       ...input,
-      id: 'ord-nj-' + Date.now(),
-      orderNo,
-      manifestNo,
+      ...createOrderIdentity('LD-NJ-'),
       createdAt: nowStr,
       collector: {
         name: '王师傅',
@@ -278,14 +292,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             ],
           }
         : order),
-      user: {
-        ...user,
-        points: user.points + target.estimatedPoints,
-        carbonSavedKg: Number((user.carbonSavedKg + carbonGain).toFixed(1)),
-        totalCashEarned: target.isFee
-          ? user.totalCashEarned
-          : Number((user.totalCashEarned + target.estimatedAmount).toFixed(2)),
-      },
+      user: addSettlement(user, target.estimatedPoints, carbonGain, target.isFee ? undefined : target.estimatedAmount),
     });
     showToast(`演示结算完成，+${target.estimatedPoints} 积分`, 'success');
   };
@@ -300,13 +307,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const nowStr = formatNow();
     const shortTime = nowStr.slice(5);
     const carbonGain = Number((weightKg * 1.6).toFixed(1));
-    const suffix = Date.now().toString().slice(-6);
     const data = snapshotRef.current.data;
     const { user } = data;
     const order: RecycleOrder = {
-      id: 'ord-nj-' + Date.now(),
-      orderNo: 'NJ2026' + suffix,
-      manifestNo: `LD-NJ-SM-${suffix.slice(-4)}`,
+      ...createOrderIdentity('LD-NJ-SM-'),
       category: 'recyclable',
       categoryLabel: '智能回收柜投递',
       status: 'completed',
@@ -330,12 +334,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     saveData({
       ...data,
       orders: [order, ...data.orders],
-      user: {
-        ...user,
-        points: user.points + points,
-        carbonSavedKg: Number((user.carbonSavedKg + carbonGain).toFixed(1)),
-        totalCashEarned: Number((user.totalCashEarned + cashEarned).toFixed(2)),
-      },
+      user: addSettlement(user, points, carbonGain, cashEarned),
     });
   };
 
@@ -371,6 +370,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         user,
         updateUser,
         addresses,
+        currentAddress: addresses.find((address) => address.id === selectedAddressId) ?? addresses[0],
         selectedAddressId,
         setSelectedAddressId,
         addAddress,
@@ -389,7 +389,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         route,
         navigate,
         goBack,
-        goHome,
+        openOrders,
         showScanner,
         setShowScanner,
         showQrModal,

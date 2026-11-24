@@ -8,18 +8,17 @@ import {
   List,
   Phone,
   Check,
-  Camera,
   AlertCircle,
   Building2,
   Package,
   Store,
   Warehouse,
   CalendarClock,
-  Plus,
-  Minus,
   ChevronRight,
 } from 'lucide-react';
-import { MAX_BOOKING_PHOTOS, useBookingPhotos } from '../components/useBookingPhotos';
+import { BookingAddressButton, BookingItemRow, BookingPhotosField, BookingTimeSlots } from '../components/BookingFields';
+import { useBookingPhotos } from '../components/useBookingPhotos';
+import { bookingContact, setBookingQuantity } from '../utils/booking';
 import { useApp } from '../context/AppContext';
 import { SubPageHeader } from '../components/Layout';
 import {
@@ -28,7 +27,6 @@ import {
   RECYCLABLE_PROVIDERS,
   STATION_POINTS,
 } from '../data/mockData';
-import { ItemIcon } from '../components/NanjingVisuals';
 import { NanjingMap } from '../components/NanjingMap';
 
 /* ===================== 1. 可回收物交投总览（图文精简版） ===================== */
@@ -360,8 +358,7 @@ export const NearbyStationsPage: React.FC<{
 
 /* ===================== 3. 可回收物上门预约 ===================== */
 export const RecyclablesBookingPage: React.FC = () => {
-  const { addresses, selectedAddressId, navigate, createOrder, setActiveTab, showToast } = useApp();
-  const currentAddr = addresses.find((a) => a.id === selectedAddressId) ?? addresses[0];
+  const { currentAddress: currentAddr, navigate, createOrder, openOrders, showToast } = useApp();
 
   const [providerId, setProviderId] = useState(RECYCLABLE_PROVIDERS[0].id);
   const [weights, setWeights] = useState<Record<string, number>>({
@@ -370,20 +367,12 @@ export const RecyclablesBookingPage: React.FC = () => {
   });
   const [timeSlot, setTimeSlot] = useState('明天 09:00-11:00');
   const [remarks, setRemarks] = useState('');
-  const { photos, processingPhotos, addPhotos } = useBookingPhotos((message) => showToast(message, 'warning'));
+  const photoPicker = useBookingPhotos((message) => showToast(message, 'warning'));
 
   const timeSlots = ['今天 16:00-18:00', '明天 09:00-11:00', '明天 14:00-16:00', '后天 10:00-12:00'];
 
   const updateWeight = (id: string, delta: number) => {
-    setWeights((prev) => {
-      const next = Math.max(0, Number(((prev[id] ?? 0) + delta).toFixed(1)));
-      if (next === 0) {
-        const copy = { ...prev };
-        delete copy[id];
-        return copy;
-      }
-      return { ...prev, [id]: next };
-    });
+    setWeights((prev) => setBookingQuantity(prev, id, Math.max(0, Number(((prev[id] ?? 0) + delta).toFixed(1)))));
   };
 
   const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
@@ -394,7 +383,7 @@ export const RecyclablesBookingPage: React.FC = () => {
   const estimatedPoints = Math.round(totalWeight * 10);
 
   const handleSubmit = () => {
-    if (processingPhotos) return;
+    if (photoPicker.processingPhotos) return;
     if (!currentAddr) {
       showToast('请先选择回收地址', 'warning');
       return;
@@ -416,9 +405,7 @@ export const RecyclablesBookingPage: React.FC = () => {
       categoryLabel: '可回收物上门回收',
       status: 'pending',
       appointmentTime: timeSlot,
-      addressText: `${currentAddr.region}${currentAddr.street} ${currentAddr.community} ${currentAddr.detail}`,
-      contactName: currentAddr.contactName,
-      contactPhone: currentAddr.phone,
+      ...bookingContact(currentAddr),
       providerName: provider.name,
       itemsSummary: summary,
       estimatedAmount: Number(estimatedCash.toFixed(2)),
@@ -426,12 +413,11 @@ export const RecyclablesBookingPage: React.FC = () => {
       estimatedPoints,
       estimatedWeightKg: totalWeight,
       remarks: remarks.trim() || undefined,
-      photos,
+      photos: photoPicker.photos,
     });
 
     showToast('演示预约已创建', 'success');
-    navigate({ name: 'tabs' });
-    setActiveTab('orders');
+    openOrders();
   };
 
   return (
@@ -443,30 +429,7 @@ export const RecyclablesBookingPage: React.FC = () => {
           高龄及行动不便居民或大宗旧物可预约上门，建议总重量满 <span className="font-semibold text-zinc-900">5 公斤</span>。
         </div>
 
-        {/* Address */}
-        <button
-          onClick={() => navigate({ name: 'address_list', selectMode: true })}
-          className="w-full bg-white rounded-xl p-3.5 border border-[#E6E6E1] text-left flex items-center justify-between gap-3"
-        >
-          {currentAddr ? (
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-[#EDF5F2] text-[#1D6F5A]">
-                  上门地址
-                </span>
-                <span className="text-[14px] font-semibold text-zinc-900 tabular-nums">
-                  {currentAddr.contactName} {currentAddr.phone}
-                </span>
-              </div>
-              <p className="text-[12px] text-zinc-500 mt-1 truncate">
-                {currentAddr.region} {currentAddr.community} {currentAddr.detail}
-              </p>
-            </div>
-          ) : (
-            <span className="text-[14px] font-medium text-rose-700">* 请选择回收地址</span>
-          )}
-          <MapPin className="w-4.5 h-4.5 text-[#1D6F5A] shrink-0" />
-        </button>
+        <BookingAddressButton kind="recyclable" />
 
         {/* Service Enterprise */}
         <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2">
@@ -516,41 +479,17 @@ export const RecyclablesBookingPage: React.FC = () => {
           </div>
 
           <div className="divide-y divide-[#F0F0EC]">
-            {DAILY_MARKET_PRICES.map((item) => {
-              const kg = weights[item.id] ?? 0;
-              return (
-                <div key={item.id} className="py-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[#F4F4F1] text-zinc-700 flex items-center justify-center">
-                      <ItemIcon id={item.id} className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-medium text-zinc-900">{item.name}</div>
-                      <div className="text-[11px] text-zinc-500 tabular-nums">
-                        参考 ¥{item.price.toFixed(item.price < 1 ? 2 : 1)}/kg
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => updateWeight(item.id, -1)}
-                      className="w-7 h-7 rounded-lg bg-[#F4F4F1] flex items-center justify-center text-zinc-600"
-                    >
-                      <Minus className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="w-10 text-center text-[13px] font-semibold text-zinc-900 tabular-nums">
-                      {kg}kg
-                    </span>
-                    <button
-                      onClick={() => updateWeight(item.id, 1)}
-                      className="w-7 h-7 rounded-lg bg-[#1D6F5A] text-white flex items-center justify-center"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {DAILY_MARKET_PRICES.map((item) => (
+              <BookingItemRow
+                key={item.id}
+                id={item.id}
+                name={item.name}
+                description={<>参考 ¥{item.price.toFixed(item.price < 1 ? 2 : 1)}/kg</>}
+                quantity={<>{weights[item.id] ?? 0}kg</>}
+                onChange={(delta) => updateWeight(item.id, delta)}
+                kind="recyclable"
+              />
+            ))}
           </div>
 
           {totalWeight > 0 && totalWeight < 5 && (
@@ -564,21 +503,7 @@ export const RecyclablesBookingPage: React.FC = () => {
         {/* Time Slot */}
         <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1]">
           <div className="text-[13px] font-semibold text-zinc-900 mb-2">期望上门时段</div>
-          <div className="grid grid-cols-2 gap-2">
-            {timeSlots.map((slot) => (
-              <button
-                key={slot}
-                onClick={() => setTimeSlot(slot)}
-                className={`py-2 px-2 rounded-lg text-[12px] font-medium border transition ${
-                  timeSlot === slot
-                    ? 'border-[#1D6F5A] bg-[#EDF5F2] text-[#1D6F5A]'
-                    : 'border-[#ECECE8] bg-[#FAFAF8] text-zinc-600'
-                }`}
-              >
-                {slot}
-              </button>
-            ))}
-          </div>
+          <BookingTimeSlots slots={timeSlots} selected={timeSlot} onSelect={setTimeSlot} kind="recyclable" />
         </div>
 
         {/* Cross link */}
@@ -593,38 +518,7 @@ export const RecyclablesBookingPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Photos & Remarks */}
-        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2.5">
-          <div className="text-[13px] font-semibold text-zinc-900">现场照片与备注</div>
-          <div className="flex items-center gap-2 flex-wrap">
-            {photos.map((src, i) => (
-              <div key={i} className="w-15 h-15 rounded-lg overflow-hidden border border-[#E6E6E1]">
-                <img src={src} alt="上传照片" className="w-full h-full object-cover" />
-              </div>
-            ))}
-            {photos.length < MAX_BOOKING_PHOTOS && (
-              <label className="w-15 h-15 rounded-lg border border-dashed border-zinc-300 bg-[#FAFAF8] flex flex-col items-center justify-center text-zinc-400 cursor-pointer">
-                <Camera className="w-4.5 h-4.5" />
-                <span className="text-[10px] mt-0.5 tabular-nums">{photos.length}/{MAX_BOOKING_PHOTOS}</span>
-                <input type="file" accept="image/*" multiple disabled={processingPhotos} onChange={addPhotos} className="hidden" />
-              </label>
-            )}
-          </div>
-          {processingPhotos && <p role="status" className="text-[11px] text-zinc-500">正在处理照片…</p>}
-          <div className="relative">
-            <textarea
-              maxLength={200}
-              rows={3}
-              value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
-              placeholder="选填：如需要上楼协助搬运、纸箱较多等情况"
-              className="w-full rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] p-2.5 text-[13px] text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:border-[#1D6F5A] resize-none"
-            />
-            <span className="absolute right-2.5 bottom-2 text-[10.5px] text-zinc-400 tabular-nums">
-              {remarks.length}/200
-            </span>
-          </div>
-        </div>
+        <BookingPhotosField picker={photoPicker} remarks={remarks} onRemarksChange={setRemarks} kind="recyclable" />
       </div>
 
       {/* Sticky Checkout Footer */}
@@ -642,7 +536,7 @@ export const RecyclablesBookingPage: React.FC = () => {
         </div>
         <button
           onClick={handleSubmit}
-          disabled={processingPhotos}
+          disabled={photoPicker.processingPhotos}
           className="px-6 py-2.5 rounded-lg bg-[#1D6F5A] active:bg-[#175C4A] text-white font-semibold text-[14px] transition"
         >
           提交预约

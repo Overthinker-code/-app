@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { MapPin, Check, ShieldCheck, Wrench } from 'lucide-react';
+import { bookingContact } from '../utils/booking';
 import { useApp } from '../context/AppContext';
+import { BookingTimeSlots } from '../components/BookingFields';
 import { SubPageHeader } from '../components/Layout';
 import { APPLIANCE_CATALOG, APPLIANCE_PROVIDERS } from '../data/mockData';
 import { ItemIcon } from '../components/NanjingVisuals';
@@ -8,8 +10,7 @@ import { ItemIcon } from '../components/NanjingVisuals';
 export const ApplianceBookingPage: React.FC<{ initialProvider?: string }> = ({
   initialProvider = 'suning',
 }) => {
-  const { addresses, selectedAddressId, navigate, createOrder, setActiveTab, showToast } = useApp();
-  const currentAddr = addresses.find((a) => a.id === selectedAddressId) ?? addresses[0];
+  const { currentAddress: currentAddr, navigate, createOrder, openOrders, showToast } = useApp();
 
   const [providerId, setProviderId] = useState(initialProvider);
   const [selectedApplianceId, setSelectedApplianceId] = useState(APPLIANCE_CATALOG[0].id);
@@ -40,9 +41,7 @@ export const ApplianceBookingPage: React.FC<{ initialProvider?: string }> = ({
       categoryLabel: '废旧家电回收',
       status: 'pending',
       appointmentTime: timeSlot,
-      addressText: `${currentAddr.region}${currentAddr.street} ${currentAddr.community} ${currentAddr.detail}`,
-      contactName: currentAddr.contactName,
-      contactPhone: currentAddr.phone,
+      ...bookingContact(currentAddr),
       providerName: provider.name,
       itemsSummary: `${appliance.name}（${conditionLabel}）×1`,
       estimatedAmount: totalPayout,
@@ -52,8 +51,7 @@ export const ApplianceBookingPage: React.FC<{ initialProvider?: string }> = ({
       remarks: `${needUninstall ? '需上门拆机；' : ''}${remarks.trim()}`.replace(/；$/, '') || undefined,
     });
     showToast(`已创建${provider.name}演示预约，参考估价 ¥${totalPayout}`, 'success');
-    navigate({ name: 'tabs' });
-    setActiveTab('orders');
+    openOrders();
   };
 
   return (
@@ -223,21 +221,7 @@ export const ApplianceBookingPage: React.FC<{ initialProvider?: string }> = ({
 
           <div>
             <div className="text-[12px] font-medium text-zinc-600 mb-2">期望上门时段</div>
-            <div className="grid grid-cols-2 gap-2">
-              {['明天 10:00-12:00', '明天 14:00-16:00', '后天 10:00-12:00', '周末上午'].map((slot) => (
-                <button
-                  key={slot}
-                  onClick={() => setTimeSlot(slot)}
-                  className={`py-2 rounded-lg text-[12px] font-medium border transition ${
-                    timeSlot === slot
-                      ? 'border-[#1D6F5A] bg-[#EDF5F2] text-[#1D6F5A]'
-                      : 'border-[#ECECE8] bg-[#FAFAF8] text-zinc-600'
-                  }`}
-                >
-                  {slot}
-                </button>
-              ))}
-            </div>
+            <BookingTimeSlots slots={['明天 10:00-12:00', '明天 14:00-16:00', '后天 10:00-12:00', '周末上午']} selected={timeSlot} onSelect={setTimeSlot} kind="appliance" />
           </div>
 
           <input

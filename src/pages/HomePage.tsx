@@ -15,6 +15,12 @@ import { DAILY_MARKET_PRICES } from '../data/mockData';
 import { NingLogoMark } from '../components/NanjingVisuals';
 import { CommunityPickerModal } from '../components/Modals';
 
+const QUICK_ACTIONS = [
+  { title: '附近回收点', Icon: Navigation, route: { name: 'nearby_stations', stationType: 'smart_machine' } },
+  { title: '预约上门', Icon: CalendarClock, route: { name: 'recyclables_booking' } },
+  { title: '备案单位', Icon: Building2, route: { name: 'renovation_units' } },
+] as const;
+
 export const HomePage: React.FC = () => {
   const { user, navigate, setShowScanner, setShowQrModal, setShowAppliancePicker } = useApp();
   const [communityOpen, setCommunityOpen] = useState(false);
@@ -55,6 +61,17 @@ export const HomePage: React.FC = () => {
       onClick: () => setShowAppliancePicker(true),
     },
   ];
+
+  const storyCards = [
+    {
+      image: '/images/nj-ming-forest.jpg', alt: '南京分类自测', title: '南京分类自测', subtitle: '5题速测四分类',
+      badge: user.quizClaimed ? '已通关' : '+20 积分', badgeStyle: 'text-[#1D6F5A]', route: { name: 'usage_guide' },
+    },
+    {
+      image: '/images/nj-ming-wall.jpg', alt: '积分兑好礼', title: '积分兑出行金', subtitle: '金陵通 · 清运券',
+      badge: `${user.points} 分`, badgeStyle: 'text-zinc-900 tabular-nums', route: { name: 'points_mall' },
+    },
+  ] as const;
 
   return (
     <div className="min-h-full bg-[#F4F4F1] pb-6">
@@ -175,29 +192,17 @@ export const HomePage: React.FC = () => {
           ))}
         </div>
 
-        {/* Clean 3-Action Quick Strip */}
         <div className="grid grid-cols-3 gap-2">
-          <button
-            onClick={() => navigate({ name: 'nearby_stations', stationType: 'smart_machine' })}
-            className="bg-white rounded-xl border border-[#E6E6E1] py-2.5 px-2 flex flex-col items-center gap-1 active:bg-zinc-50 transition"
-          >
-            <Navigation className="w-4 h-4 text-[#1D6F5A]" />
-            <span className="text-[12px] font-medium text-zinc-800">附近回收点</span>
-          </button>
-          <button
-            onClick={() => navigate({ name: 'recyclables_booking' })}
-            className="bg-white rounded-xl border border-[#E6E6E1] py-2.5 px-2 flex flex-col items-center gap-1 active:bg-zinc-50 transition"
-          >
-            <CalendarClock className="w-4 h-4 text-[#1D6F5A]" />
-            <span className="text-[12px] font-medium text-zinc-800">预约上门</span>
-          </button>
-          <button
-            onClick={() => navigate({ name: 'renovation_units' })}
-            className="bg-white rounded-xl border border-[#E6E6E1] py-2.5 px-2 flex flex-col items-center gap-1 active:bg-zinc-50 transition"
-          >
-            <Building2 className="w-4 h-4 text-[#1D6F5A]" />
-            <span className="text-[12px] font-medium text-zinc-800">备案单位</span>
-          </button>
+          {QUICK_ACTIONS.map(({ title, Icon, route }) => (
+            <button
+              key={title}
+              onClick={() => navigate(route)}
+              className="bg-white rounded-xl border border-[#E6E6E1] py-2.5 px-2 flex flex-col items-center gap-1 active:bg-zinc-50 transition"
+            >
+              <Icon className="w-4 h-4 text-[#1D6F5A]" />
+              <span className="text-[12px] font-medium text-zinc-800">{title}</span>
+            </button>
+          ))}
         </div>
 
         {/* Horizontal Photo Gallery: 今日参考价 */}
@@ -244,45 +249,24 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* 2 Visual Nanjing Story Cards (明孝陵红墙 + 明城墙琉璃塔) */}
         <div className="grid grid-cols-2 gap-2.5">
-          <button
-            onClick={() => navigate({ name: 'usage_guide' })}
-            className="relative h-[96px] rounded-xl overflow-hidden text-left border border-black/8 active:scale-[0.985] transition"
-          >
-            <img
-              src="/images/nj-ming-forest.jpg"
-              alt="南京分类自测"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
-            <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-white/90 text-[10px] font-bold text-[#1D6F5A]">
-              {user.quizClaimed ? '已通关' : '+20 积分'}
-            </span>
-            <div className="absolute bottom-2.5 left-3 right-2 text-white">
-              <div className="text-[14px] font-bold">南京分类自测</div>
-              <div className="text-[10.5px] text-white/80">5题速测四分类</div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate({ name: 'points_mall' })}
-            className="relative h-[96px] rounded-xl overflow-hidden text-left border border-black/8 active:scale-[0.985] transition"
-          >
-            <img
-              src="/images/nj-ming-wall.jpg"
-              alt="积分兑好礼"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
-            <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-white/90 text-[10px] font-bold text-zinc-900 tabular-nums">
-              {user.points} 分
-            </span>
-            <div className="absolute bottom-2.5 left-3 right-2 text-white">
-              <div className="text-[14px] font-bold">积分兑出行金</div>
-              <div className="text-[10.5px] text-white/80">金陵通 · 清运券</div>
-            </div>
-          </button>
+          {storyCards.map((card) => (
+            <button
+              key={card.title}
+              onClick={() => navigate(card.route)}
+              className="relative h-[96px] rounded-xl overflow-hidden text-left border border-black/8 active:scale-[0.985] transition"
+            >
+              <img src={card.image} alt={card.alt} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
+              <span className={`absolute top-2 right-2 px-1.5 py-0.5 rounded bg-white/90 text-[10px] font-bold ${card.badgeStyle}`}>
+                {card.badge}
+              </span>
+              <div className="absolute bottom-2.5 left-3 right-2 text-white">
+                <div className="text-[14px] font-bold">{card.title}</div>
+                <div className="text-[10.5px] text-white/80">{card.subtitle}</div>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
 

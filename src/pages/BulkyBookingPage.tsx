@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import {
-  MapPin,
   Check,
-  Camera,
   Plus,
   Minus,
   X,
@@ -10,35 +8,27 @@ import {
   ReceiptText,
   AlertCircle,
 } from 'lucide-react';
-import { MAX_BOOKING_PHOTOS, useBookingPhotos } from '../components/useBookingPhotos';
+import { BookingAddressButton, BookingItemRow, BookingPhotosField, BookingTimeSlots } from '../components/BookingFields';
+import { useBookingPhotos } from '../components/useBookingPhotos';
+import { bookingContact, setBookingQuantity } from '../utils/booking';
 import { useApp } from '../context/AppContext';
 import { SubPageHeader } from '../components/Layout';
 import { BULKY_ITEMS_CATALOG, BULKY_PROVIDERS } from '../data/mockData';
-import { ItemIcon } from '../components/NanjingVisuals';
 
 export const BulkyBookingPage: React.FC = () => {
-  const { addresses, selectedAddressId, navigate, createOrder, setActiveTab, showToast } = useApp();
-  const currentAddr = addresses.find((a) => a.id === selectedAddressId) ?? addresses[0];
+  const { currentAddress: currentAddr, createOrder, openOrders, showToast } = useApp();
 
   const [providerId, setProviderId] = useState(BULKY_PROVIDERS[0].id);
   const [counts, setCounts] = useState<Record<string, number>>({ mattress: 1 });
   const [hasElevator, setHasElevator] = useState(true);
   const [floor, setFloor] = useState(3);
   const [timeSlot, setTimeSlot] = useState('明天 14:00-16:00');
-  const { photos, processingPhotos, addPhotos, removePhoto } = useBookingPhotos((message) => showToast(message, 'warning'));
+  const photoPicker = useBookingPhotos((message) => showToast(message, 'warning'));
   const [remarks, setRemarks] = useState('');
   const [showPriceTable, setShowPriceTable] = useState(false);
 
   const changeCount = (id: string, delta: number) => {
-    setCounts((prev) => {
-      const next = Math.max(0, (prev[id] ?? 0) + delta);
-      if (next === 0) {
-        const copy = { ...prev };
-        delete copy[id];
-        return copy;
-      }
-      return { ...prev, [id]: next };
-    });
+    setCounts((prev) => setBookingQuantity(prev, id, Math.max(0, (prev[id] ?? 0) + delta)));
   };
 
   const itemsCost = Object.entries(counts).reduce((sum, [id, qty]) => {
@@ -51,7 +41,7 @@ export const BulkyBookingPage: React.FC = () => {
   const totalEstimated = itemsCost + stairFee;
 
   const handleSubmit = () => {
-    if (processingPhotos) return;
+    if (photoPicker.processingPhotos) return;
     if (!currentAddr) {
       showToast('请先选择清运地址', 'warning');
       return;
@@ -73,9 +63,7 @@ export const BulkyBookingPage: React.FC = () => {
       categoryLabel: '大件家具清运',
       status: 'pending',
       appointmentTime: timeSlot,
-      addressText: `${currentAddr.region}${currentAddr.street} ${currentAddr.community} ${currentAddr.detail}`,
-      contactName: currentAddr.contactName,
-      contactPhone: currentAddr.phone,
+      ...bookingContact(currentAddr),
       providerName: provider.name,
       itemsSummary: summary,
       estimatedAmount: totalEstimated,
@@ -84,12 +72,11 @@ export const BulkyBookingPage: React.FC = () => {
       estimatedWeightKg: totalItems * 22,
       hasElevator,
       remarks: remarks.trim() || undefined,
-      photos,
+      photos: photoPicker.photos,
     });
 
     showToast('大件清运演示预约已创建', 'success');
-    navigate({ name: 'tabs' });
-    setActiveTab('orders');
+    openOrders();
   };
 
   return (
@@ -116,30 +103,7 @@ export const BulkyBookingPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Address */}
-        <button
-          onClick={() => navigate({ name: 'address_list', selectMode: true })}
-          className="w-full bg-white rounded-xl p-3.5 border border-[#E6E6E1] text-left flex items-center justify-between gap-3"
-        >
-          {currentAddr ? (
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-[#FDF4EC] text-[#B45309]">
-                  清运地址
-                </span>
-                <span className="text-[14px] font-semibold text-zinc-900 tabular-nums">
-                  {currentAddr.contactName} {currentAddr.phone}
-                </span>
-              </div>
-              <p className="text-[12px] text-zinc-500 mt-1 truncate">
-                {currentAddr.region} {currentAddr.community} {currentAddr.detail}
-              </p>
-            </div>
-          ) : (
-            <span className="text-[14px] font-medium text-rose-700">* 请选择清运地址</span>
-          )}
-          <MapPin className="w-4.5 h-4.5 text-[#B45309] shrink-0" />
-        </button>
+        <BookingAddressButton kind="bulky" />
 
         {/* Provider */}
         <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2">
@@ -189,41 +153,17 @@ export const BulkyBookingPage: React.FC = () => {
           </div>
 
           <div className="divide-y divide-[#F0F0EC]">
-            {BULKY_ITEMS_CATALOG.map((item) => {
-              const qty = counts[item.id] ?? 0;
-              return (
-                <div key={item.id} className="py-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[#F4F4F1] text-zinc-700 flex items-center justify-center">
-                      <ItemIcon id={item.id} className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-[13px] font-medium text-zinc-900">{item.name}</div>
-                      <div className="text-[11px] text-zinc-500">
-                        <span className="font-semibold text-[#B45309] tabular-nums">¥{item.unitPrice}/{item.unit}</span> · {item.note}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => changeCount(item.id, -1)}
-                      className="w-7 h-7 rounded-lg bg-[#F4F4F1] flex items-center justify-center text-zinc-600"
-                    >
-                      <Minus className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="w-6 text-center text-[13px] font-semibold text-zinc-900 tabular-nums">
-                      {qty}
-                    </span>
-                    <button
-                      onClick={() => changeCount(item.id, 1)}
-                      className="w-7 h-7 rounded-lg bg-[#B45309] text-white flex items-center justify-center"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {BULKY_ITEMS_CATALOG.map((item) => (
+              <BookingItemRow
+                key={item.id}
+                id={item.id}
+                name={item.name}
+                description={<><span className="font-semibold text-[#B45309] tabular-nums">¥{item.unitPrice}/{item.unit}</span> · {item.note}</>}
+                quantity={counts[item.id] ?? 0}
+                onChange={(delta) => changeCount(item.id, delta)}
+                kind="bulky"
+              />
+            ))}
           </div>
         </div>
 
@@ -279,62 +219,11 @@ export const BulkyBookingPage: React.FC = () => {
 
           <div className="pt-2 border-t border-[#F0F0EC]">
             <div className="text-[12px] font-medium text-zinc-600 mb-2">期望清运时段</div>
-            <div className="grid grid-cols-2 gap-2">
-              {['明天 09:00-11:00', '明天 14:00-16:00', '后天 09:00-11:00', '周末全天'].map((slot) => (
-                <button
-                  key={slot}
-                  onClick={() => setTimeSlot(slot)}
-                  className={`py-2 rounded-lg text-[12px] font-medium border transition ${
-                    timeSlot === slot
-                      ? 'border-[#B45309] bg-[#FDF4EC] text-[#B45309]'
-                      : 'border-[#ECECE8] bg-[#FAFAF8] text-zinc-600'
-                  }`}
-                >
-                  {slot}
-                </button>
-              ))}
-            </div>
+            <BookingTimeSlots slots={['明天 09:00-11:00', '明天 14:00-16:00', '后天 09:00-11:00', '周末全天']} selected={timeSlot} onSelect={setTimeSlot} kind="bulky" />
           </div>
         </div>
 
-        {/* Photos & Remarks */}
-        <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1] space-y-2.5">
-          <div className="text-[13px] font-semibold text-zinc-900">现场照片（最多 4 张）与备注</div>
-          <div className="flex items-center gap-2 flex-wrap">
-            {photos.map((src, i) => (
-              <div key={i} className="relative w-15 h-15 rounded-lg overflow-hidden border border-[#E6E6E1]">
-                <img src={src} alt="大件照片" className="w-full h-full object-cover" />
-                <button
-                  onClick={() => removePhoto(i)}
-                  className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-zinc-900/75 text-white flex items-center justify-center"
-                >
-                  <X className="w-2.5 h-2.5" />
-                </button>
-              </div>
-            ))}
-            {photos.length < MAX_BOOKING_PHOTOS && (
-              <label className="w-15 h-15 rounded-lg border border-dashed border-zinc-300 bg-[#FAFAF8] flex flex-col items-center justify-center text-zinc-400 cursor-pointer">
-                <Camera className="w-4.5 h-4.5" />
-                <span className="text-[10px] mt-0.5 tabular-nums">{photos.length}/{MAX_BOOKING_PHOTOS}</span>
-                <input type="file" accept="image/*" multiple disabled={processingPhotos} onChange={addPhotos} className="hidden" />
-              </label>
-            )}
-          </div>
-          {processingPhotos && <p role="status" className="text-[11px] text-zinc-500">正在处理照片…</p>}
-          <div className="relative">
-            <textarea
-              maxLength={200}
-              rows={3}
-              value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
-              placeholder="请备注物品尺寸、是否需要现场拆解、小区货车进出时段等"
-              className="w-full rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] p-2.5 text-[13px] text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:border-[#B45309] resize-none"
-            />
-            <span className="absolute right-2.5 bottom-2 text-[10.5px] text-zinc-400 tabular-nums">
-              {remarks.length}/200
-            </span>
-          </div>
-        </div>
+        <BookingPhotosField picker={photoPicker} remarks={remarks} onRemarksChange={setRemarks} kind="bulky" />
 
         <div className="flex items-start gap-1.5 px-1 text-[11px] text-zinc-500">
           <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-zinc-400" />
@@ -355,7 +244,7 @@ export const BulkyBookingPage: React.FC = () => {
         </div>
         <button
           onClick={handleSubmit}
-          disabled={processingPhotos}
+          disabled={photoPicker.processingPhotos}
           className="px-6 py-2.5 rounded-lg bg-[#B45309] active:opacity-90 text-white font-semibold text-[14px]"
         >
           提交预约

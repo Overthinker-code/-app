@@ -20,7 +20,7 @@ import type { DisposalUnit, KnowledgeArticle } from '../types';
 
 /* ===================== 1. 装修垃圾清运中心 ===================== */
 export const RenovationHubPage: React.FC = () => {
-  const { user, navigate, setActiveTab } = useApp();
+  const { user, navigate, openOrders } = useApp();
   const [articleTab, setArticleTab] = useState<'policy' | 'guide' | 'activity'>('policy');
   const [readingArticle, setReadingArticle] = useState<KnowledgeArticle | null>(null);
 
@@ -54,36 +54,23 @@ export const RenovationHubPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 3 Action Tiles */}
         <div className="bg-white rounded-xl p-3.5 border border-[#E6E6E1]">
           <div className="text-[13px] font-semibold text-zinc-900 mb-2.5">清运服务办理</div>
           <div className="grid grid-cols-3 gap-2">
-            <button
-              onClick={() => navigate({ name: 'renovation_booking' })}
-              className="rounded-lg bg-[#EDF5F2] border border-[#D4E6DF] p-3 flex flex-col items-center text-center gap-1.5"
-            >
-              <CalendarPlus className="w-5 h-5 text-[#1D6F5A]" />
-              <span className="text-[12.5px] font-semibold text-zinc-900">预约清运</span>
-            </button>
-
-            <button
-              onClick={() => {
-                navigate({ name: 'tabs' });
-                setActiveTab('orders');
-              }}
-              className="rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] p-3 flex flex-col items-center text-center gap-1.5"
-            >
-              <ClipboardList className="w-5 h-5 text-zinc-700" />
-              <span className="text-[12.5px] font-semibold text-zinc-900">清运订单</span>
-            </button>
-
-            <button
-              onClick={() => navigate({ name: 'renovation_units' })}
-              className="rounded-lg bg-[#FAFAF8] border border-[#E6E6E1] p-3 flex flex-col items-center text-center gap-1.5"
-            >
-              <Building2 className="w-5 h-5 text-zinc-700" />
-              <span className="text-[12.5px] font-semibold text-zinc-900">备案单位</span>
-            </button>
+            {[
+              { title: '预约清运', Icon: CalendarPlus, primary: true, onClick: () => navigate({ name: 'renovation_booking' }) },
+              { title: '清运订单', Icon: ClipboardList, onClick: openOrders },
+              { title: '备案单位', Icon: Building2, onClick: () => navigate({ name: 'renovation_units' }) },
+            ].map(({ title, Icon, primary, onClick }) => (
+              <button
+                key={title}
+                onClick={onClick}
+                className={`rounded-lg ${primary ? 'bg-[#EDF5F2] border border-[#D4E6DF]' : 'bg-[#FAFAF8] border border-[#E6E6E1]'} p-3 flex flex-col items-center text-center gap-1.5`}
+              >
+                <Icon className={`w-5 h-5 ${primary ? 'text-[#1D6F5A]' : 'text-zinc-700'}`} />
+                <span className="text-[12.5px] font-semibold text-zinc-900">{title}</span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -182,8 +169,7 @@ export const RenovationHubPage: React.FC = () => {
 
 /* ===================== 2. 装修垃圾预约 2步向导 ===================== */
 export const RenovationBookingPage: React.FC = () => {
-  const { user, addresses, selectedAddressId, navigate, createOrder, setActiveTab, showToast } = useApp();
-  const currentAddr = addresses.find((a) => a.id === selectedAddressId) ?? addresses[0];
+  const { user, currentAddress: currentAddr, navigate, createOrder, openOrders, showToast } = useApp();
 
   const [step, setStep] = useState<1 | 2>(1);
   const [district, setDistrict] = useState(user.district || '玄武区');
@@ -220,8 +206,7 @@ export const RenovationBookingPage: React.FC = () => {
       remarks: remarks.trim() || undefined,
     });
     showToast('清运演示预约已创建，联单已生成', 'success');
-    navigate({ name: 'tabs' });
-    setActiveTab('orders');
+    openOrders();
   };
 
   return (

@@ -3,13 +3,7 @@
 
 @layer base {
   :root {
-    --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --brand: #1D6F5A;
-    --brand-hover: #175C4A;
-    --canvas: #F4F4F1;
-    --surface: #FFFFFF;
-    --hairline: #E6E6E1;
   }
 
   * {

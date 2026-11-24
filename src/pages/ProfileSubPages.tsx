@@ -261,29 +261,18 @@ export const AddressEditPage: React.FC<{ editId?: string }> = ({ editId }) => {
       showToast('请填写完整的联系人、手机号与楼幢门牌', 'warning');
       return;
     }
-    if (existing) {
-      updateAddress(existing.id, {
-        contactName: contactName.trim(),
-        phone: phone.trim(),
-        region,
-        street,
-        community,
-        detail: detail.trim(),
-        isDefault,
-      });
-      showToast('地址已更新', 'success');
-    } else {
-      addAddress({
-        contactName: contactName.trim(),
-        phone: phone.trim(),
-        region,
-        street,
-        community,
-        detail: detail.trim(),
-        isDefault,
-      });
-      showToast('地址已添加', 'success');
-    }
+    const address = {
+      contactName: contactName.trim(),
+      phone: phone.trim(),
+      region,
+      street,
+      community,
+      detail: detail.trim(),
+      isDefault,
+    };
+    if (existing) updateAddress(existing.id, address);
+    else addAddress(address);
+    showToast(existing ? '地址已更新' : '地址已添加', 'success');
     goBack();
   };
 
