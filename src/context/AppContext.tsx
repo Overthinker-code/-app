@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import type {
   Address,
   AppRoute,
@@ -6,11 +6,8 @@ import type {
   TabId,
   UserProfile,
 } from '../types';
-import {
-  DEFAULT_ADDRESSES,
-  DEFAULT_USER,
-  INITIAL_ORDERS,
-} from '../data/mockData';
+import { DEFAULT_DATA, loadLocalData, STORAGE_KEY } from './localData';
+import type { LocalData } from './localData';
 
 interface ToastMessage {
   id: number;
@@ -18,9 +15,11 @@ interface ToastMessage {
   type: 'success' | 'info' | 'warning';
 }
 
+type EditableProfile = Pick<UserProfile, 'nickname' | 'phone' | 'gender' | 'birthday' | 'birthdayLocked' | 'district' | 'community'>;
+
 interface AppContextType {
   user: UserProfile;
-  updateUser: (patch: Partial<UserProfile>) => void;
+  updateUser: (patch: Partial<EditableProfile>) => void;
   addresses: Address[];
   selectedAddressId: string;
   setSelectedAddressId: (id: string) => void;
@@ -47,32 +46,17 @@ interface AppContextType {
   setShowQrModal: (v: boolean) => void;
   showAppliancePicker: boolean;
   setShowAppliancePicker: (v: boolean) => void;
+  storageIssue: boolean;
   toast: ToastMessage | null;
   showToast: (text: string, type?: ToastMessage['type']) => void;
 }
 
-const STORAGE_KEY = 'ninghuishou_nj_v2';
-
 const AppContext = createContext<AppContextType | null>(null);
 
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
-
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const saved = loadState();
-  const [user, setUser] = useState<UserProfile>(saved?.user ?? DEFAULT_USER);
-  const [addresses, setAddresses] = useState<Address[]>(saved?.addresses ?? DEFAULT_ADDRESSES);
-  const [selectedAddressId, setSelectedAddressId] = useState<string>(
-    saved?.selectedAddressId ?? (saved?.addresses?.[0]?.id ?? DEFAULT_ADDRESSES[0].id)
-  );
-  const [orders, setOrders] = useState<RecycleOrder[]>(saved?.orders ?? INITIAL_ORDERS);
+  const [snapshot, setSnapshot] = useState(loadLocalData);
+  const snapshotRef = useRef(snapshot);
+  const { user, addresses, selectedAddressId, orders } = snapshot.data;
 
   const [activeTab, setActiveTab] = useState<TabId>('home');
   const [routeStack, setRouteStack] = useState<AppRoute[]>([{ name: 'tabs' }]);
@@ -82,15 +66,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [toast, setToast] = useState<ToastMessage | null>(null);
 
   useEffect(() => {
+    const syncStorage = (event: StorageEvent) => {
+      if ((event.key !== STORAGE_KEY && event.key !== null) || event.storageArea !== localStorage) return;
+      const cleared = event.newValue === null;
+      // Keep this tab's unsaved edits on ordinary updates. A reset also clears this tab.
+      if (!cleared && snapshotRef.current.storageIssue) return;
+
+      const next = loadLocalData();
+      if (next.storageIssue) return;
+      snapshotRef.current = next;
+      setSnapshot(next);
+      if (cleared) {
+        setRouteStack([{ name: 'tabs' }]);
+        setActiveTab('home');
+        setShowScanner(false);
+        setShowQrModal(false);
+        setShowAppliancePicker(false);
+        setToast(null);
+      }
+    };
+    window.addEventListener('storage', syncStorage);
+    return () => window.removeEventListener('storage', syncStorage);
+  }, []);
+
+  const saveData = (data: LocalData, reset = false) => {
+    let storageIssue = false;
     try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ user, addresses, selectedAddressId, orders })
-      );
+      if (reset) localStorage.removeItem(STORAGE_KEY);
+      else localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch {
-      // ignore storage quota errors
+      storageIssue = true;
     }
-  }, [user, addresses, selectedAddressId, orders]);
+    // Set the live snapshot before the next action, even if React has not rendered yet.
+    const next = { data, storageIssue };
+    snapshotRef.current = next;
+    setSnapshot(next);
+    return !storageIssue;
+  };
 
   const showToast = (text: string, type: ToastMessage['type'] = 'success') => {
     const id = Date.now();
@@ -115,39 +127,52 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setActiveTab('home');
   };
 
-  const updateUser = (patch: Partial<UserProfile>) => {
-    setUser((prev) => ({ ...prev, ...patch }));
+  const updateUser = (patch: Partial<EditableProfile>) => {
+    const data = snapshotRef.current.data;
+    saveData({ ...data, user: { ...data.user, ...patch } });
+  };
+
+  const setSelectedAddressId = (id: string) => {
+    const data = snapshotRef.current.data;
+    if (id !== data.selectedAddressId && data.addresses.some((address) => address.id === id)) {
+      saveData({ ...data, selectedAddressId: id });
+    }
   };
 
   const addAddress = (addr: Omit<Address, 'id'>) => {
+    const data = snapshotRef.current.data;
     const newAddr: Address = { ...addr, id: 'addr-nj-' + Date.now() };
-    setAddresses((prev) => {
-      const base = newAddr.isDefault ? prev.map((a) => ({ ...a, isDefault: false })) : prev;
-      return [newAddr, ...base];
+    const otherAddresses = newAddr.isDefault
+      ? data.addresses.map((address) => ({ ...address, isDefault: false }))
+      : data.addresses;
+    saveData({
+      ...data,
+      addresses: [newAddr, ...otherAddresses],
+      selectedAddressId: newAddr.isDefault || otherAddresses.length === 0 ? newAddr.id : data.selectedAddressId,
     });
-    if (newAddr.isDefault || addresses.length === 0) {
-      setSelectedAddressId(newAddr.id);
-    }
     return newAddr;
   };
 
   const updateAddress = (id: string, patch: Partial<Address>) => {
-    setAddresses((prev) =>
-      prev.map((a) => {
-        if (a.id === id) return { ...a, ...patch };
-        if (patch.isDefault) return { ...a, isDefault: false };
-        return a;
-      })
-    );
+    const data = snapshotRef.current.data;
+    if (!data.addresses.some((address) => address.id === id)) return;
+    saveData({
+      ...data,
+      addresses: data.addresses.map((address) => {
+        if (address.id === id) return { ...address, ...patch };
+        return patch.isDefault ? { ...address, isDefault: false } : address;
+      }),
+    });
   };
 
   const deleteAddress = (id: string) => {
-    setAddresses((prev) => {
-      const next = prev.filter((a) => a.id !== id);
-      if (selectedAddressId === id && next.length > 0) {
-        setSelectedAddressId(next[0].id);
-      }
-      return next;
+    const data = snapshotRef.current.data;
+    const next = data.addresses.filter((address) => address.id !== id);
+    if (next.length === data.addresses.length) return;
+    saveData({
+      ...data,
+      addresses: next,
+      selectedAddressId: data.selectedAddressId === id ? next[0]?.id ?? '' : data.selectedAddressId,
     });
   };
 
@@ -178,7 +203,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         {
           time: shortTime,
           title: '预约已提交',
-          desc: `已推送至 ${input.providerName}`,
+          desc: `模拟派单对象：${input.providerName}`,
           done: true,
         },
         {
@@ -195,68 +220,74 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         },
       ],
     };
-    setOrders((prev) => [newOrder, ...prev]);
-    setUser((prev) => ({
-      ...prev,
-      points: prev.points + 10,
-    }));
+    const data = snapshotRef.current.data;
+    saveData({
+      ...data,
+      orders: [newOrder, ...data.orders],
+      user: { ...data.user, points: data.user.points + 10 },
+    });
     return newOrder;
   };
 
   const cancelOrder = (id: string) => {
+    const data = snapshotRef.current.data;
+    const target = data.orders.find((order) => order.id === id);
+    if (target?.status !== 'pending' && target?.status !== 'assigned') return;
+
     const shortTime = formatNow().slice(5);
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === id
-          ? {
-              ...o,
-              status: 'cancelled',
-              timeline: [
-                ...o.timeline,
-                { time: shortTime, title: '订单已取消', desc: '居民主动取消本次预约', done: true },
-              ],
-            }
-          : o
-      )
-    );
+    saveData({
+      ...data,
+      orders: data.orders.map((order) => order === target
+        ? {
+            ...order,
+            status: 'cancelled',
+            timeline: [
+              ...order.timeline,
+              { time: shortTime, title: '订单已取消', desc: '居民主动取消本次预约', done: true },
+            ],
+          }
+        : order),
+    });
     showToast('已取消该预约单', 'info');
   };
 
   const completeOrder = (id: string) => {
-    const target = orders.find((o) => o.id === id);
-    if (!target || target.status === 'completed') return;
+    const data = snapshotRef.current.data;
+    const target = data.orders.find((order) => order.id === id);
+    if (target?.status !== 'pending' && target?.status !== 'assigned') return;
+
     const shortTime = formatNow().slice(5);
     const carbonGain = Number((target.estimatedWeightKg * 1.45).toFixed(1));
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === id
-          ? {
-              ...o,
-              status: 'completed',
-              timeline: [
-                ...o.timeline.map((t) => ({ ...t, done: true })),
-                {
-                  time: shortTime,
-                  title: '核验完成并已结算',
-                  desc: o.isFee
-                    ? `已完成合规清运，联单 ${o.manifestNo ?? ''} 已归档，+${o.estimatedPoints} 积分`
-                    : `回收款 ¥${o.estimatedAmount.toFixed(2)} 已结算，+${o.estimatedPoints} 积分`,
-                  done: true,
-                },
-              ],
-            }
-          : o
-      )
-    );
-    setUser((prev) => ({
-      ...prev,
-      points: prev.points + target.estimatedPoints,
-      carbonSavedKg: Number((prev.carbonSavedKg + carbonGain).toFixed(1)),
-      totalCashEarned: target.isFee
-        ? prev.totalCashEarned
-        : Number((prev.totalCashEarned + target.estimatedAmount).toFixed(2)),
-    }));
-    showToast(`结算完成，+${target.estimatedPoints} 积分`, 'success');
+    const { user } = data;
+    saveData({
+      ...data,
+      orders: data.orders.map((order) => order === target
+        ? {
+            ...order,
+            status: 'completed',
+            timeline: [
+              ...order.timeline.map((item) => ({ ...item, done: true })),
+              {
+                time: shortTime,
+                title: '核验完成并已结算',
+                desc: order.isFee
+                  ? `已完成合规清运，联单 ${order.manifestNo ?? ''} 已归档，+${order.estimatedPoints} 积分`
+                  : `回收款 ¥${order.estimatedAmount.toFixed(2)} 已结算，+${order.estimatedPoints} 积分`,
+                done: true,
+              },
+            ],
+          }
+        : order),
+      user: {
+        ...user,
+        points: user.points + target.estimatedPoints,
+        carbonSavedKg: Number((user.carbonSavedKg + carbonGain).toFixed(1)),
+        totalCashEarned: target.isFee
+          ? user.totalCashEarned
+          : Number((user.totalCashEarned + target.estimatedAmount).toFixed(2)),
+      },
+    });
+    showToast(`演示结算完成，+${target.estimatedPoints} 积分`, 'success');
   };
 
   const addQuickDropoff: AppContextType['addQuickDropoff'] = (
@@ -270,6 +301,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const shortTime = nowStr.slice(5);
     const carbonGain = Number((weightKg * 1.6).toFixed(1));
     const suffix = Date.now().toString().slice(-6);
+    const data = snapshotRef.current.data;
+    const { user } = data;
     const order: RecycleOrder = {
       id: 'ord-nj-' + Date.now(),
       orderNo: 'NJ2026' + suffix,
@@ -294,40 +327,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         { time: shortTime, title: '余额已入账', desc: `入账 ¥${cashEarned.toFixed(2)}，累计 +${points} 积分`, done: true },
       ],
     };
-    setOrders((prev) => [order, ...prev]);
-    setUser((prev) => ({
-      ...prev,
-      points: prev.points + points,
-      carbonSavedKg: Number((prev.carbonSavedKg + carbonGain).toFixed(1)),
-      totalCashEarned: Number((prev.totalCashEarned + cashEarned).toFixed(2)),
-    }));
+    saveData({
+      ...data,
+      orders: [order, ...data.orders],
+      user: {
+        ...user,
+        points: user.points + points,
+        carbonSavedKg: Number((user.carbonSavedKg + carbonGain).toFixed(1)),
+        totalCashEarned: Number((user.totalCashEarned + cashEarned).toFixed(2)),
+      },
+    });
   };
 
   const redeemReward = (pointsCost: number, rewardName: string) => {
-    if (user.points < pointsCost) {
+    const data = snapshotRef.current.data;
+    if (!Number.isSafeInteger(pointsCost) || pointsCost <= 0) return false;
+    if (data.user.points < pointsCost) {
       showToast('当前积分不足', 'warning');
       return false;
     }
-    setUser((prev) => ({ ...prev, points: prev.points - pointsCost }));
+    saveData({ ...data, user: { ...data.user, points: data.user.points - pointsCost } });
     showToast(`已兑换「${rewardName}」`, 'success');
     return true;
   };
 
   const claimQuizReward = () => {
-    if (user.quizClaimed) return;
-    setUser((prev) => ({ ...prev, points: prev.points + 20, quizClaimed: true }));
+    const data = snapshotRef.current.data;
+    if (data.user.quizClaimed) return;
+    saveData({ ...data, user: { ...data.user, points: data.user.points + 20, quizClaimed: true } });
     showToast('测验完成，已发放 +20 积分', 'success');
   };
 
   const resetLocalData = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    setUser(DEFAULT_USER);
-    setAddresses(DEFAULT_ADDRESSES);
-    setSelectedAddressId(DEFAULT_ADDRESSES[0].id);
-    setOrders(INITIAL_ORDERS);
+    const cleared = saveData(DEFAULT_DATA, true);
     setRouteStack([{ name: 'tabs' }]);
     setActiveTab('home');
-    showToast('已恢复初始数据', 'info');
+    showToast(cleared ? '已恢复初始数据' : '浏览器未能清除已保存的数据', cleared ? 'info' : 'warning');
   };
 
   return (
@@ -361,6 +396,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setShowQrModal,
         showAppliancePicker,
         setShowAppliancePicker,
+        storageIssue: snapshot.storageIssue,
         toast,
         showToast,
       }}

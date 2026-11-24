@@ -41,6 +41,7 @@ export const NanjingMap: React.FC<NanjingMapProps> = ({
         attribution: '地图数据 &copy; 高德地图',
         maxZoom: 18,
         minZoom: 11,
+        referrerPolicy: 'no-referrer',
       }
     ).addTo(map);
 
@@ -65,9 +66,11 @@ export const NanjingMap: React.FC<NanjingMapProps> = ({
     group.clearLayers();
 
     // 当前小区位置蓝点
+    const userPin = document.createElement('div');
+    userPin.style.cssText = 'width:14px;height:14px;border-radius:999px;background:#2563EB;border:3px solid #FFFFFF;box-shadow:0 2px 6px rgba(37,99,235,0.45)';
     const userIcon = L.divIcon({
       className: 'nj-pin-wrapper',
-      html: `<div style="width:14px;height:14px;border-radius:999px;background:#2563EB;border:3px solid #FFFFFF;box-shadow:0 2px 6px rgba(37,99,235,0.45);"></div>`,
+      html: userPin,
       iconSize: [14, 14],
       iconAnchor: [7, 7],
     });
@@ -95,25 +98,26 @@ export const NanjingMap: React.FC<NanjingMapProps> = ({
           ? `${st.distanceMeters}m`
           : `${(st.distanceMeters / 1000).toFixed(1)}km`;
 
-      const pinHtml = `
-        <div style="
-          display:inline-flex;align-items:center;gap:4px;
-          padding:3px 7px;border-radius:6px;
-          font-size:11px;font-weight:700;white-space:nowrap;
-          background:${active ? '#1D6F5A' : '#FFFFFF'};
-          color:${active ? '#FFFFFF' : '#18181B'};
-          border:1.5px solid ${active ? '#1D6F5A' : '#D4D4D8'};
-          box-shadow:0 2px 6px rgba(0,0,0,${active ? '0.25' : '0.12'});
-          transform:translate(-50%,-100%);
-        ">
-          <span style="width:5px;height:5px;border-radius:99px;background:${active ? '#A7F3D0' : '#1D6F5A'};"></span>
-          <span>${distLabel}</span>
-        </div>
+      const pin = document.createElement('div');
+      pin.style.cssText = `
+        display:inline-flex;align-items:center;gap:4px;
+        padding:3px 7px;border-radius:6px;
+        font-size:11px;font-weight:700;white-space:nowrap;
+        background:${active ? '#1D6F5A' : '#FFFFFF'};
+        color:${active ? '#FFFFFF' : '#18181B'};
+        border:1.5px solid ${active ? '#1D6F5A' : '#D4D4D8'};
+        box-shadow:0 2px 6px rgba(0,0,0,${active ? '0.25' : '0.12'});
+        transform:translate(-50%,-100%);
       `;
+      const dot = document.createElement('span');
+      dot.style.cssText = `width:5px;height:5px;border-radius:99px;background:${active ? '#A7F3D0' : '#1D6F5A'}`;
+      const label = document.createElement('span');
+      label.textContent = distLabel;
+      pin.append(dot, label);
 
       const icon = L.divIcon({
         className: 'nj-pin-wrapper',
-        html: pinHtml,
+        html: pin,
         iconSize: [0, 0],
       });
 

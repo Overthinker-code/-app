@@ -10,6 +10,7 @@ import {
   ReceiptText,
   AlertCircle,
 } from 'lucide-react';
+import { MAX_BOOKING_PHOTOS, useBookingPhotos } from '../components/useBookingPhotos';
 import { useApp } from '../context/AppContext';
 import { SubPageHeader } from '../components/Layout';
 import { BULKY_ITEMS_CATALOG, BULKY_PROVIDERS } from '../data/mockData';
@@ -24,7 +25,7 @@ export const BulkyBookingPage: React.FC = () => {
   const [hasElevator, setHasElevator] = useState(true);
   const [floor, setFloor] = useState(3);
   const [timeSlot, setTimeSlot] = useState('明天 14:00-16:00');
-  const [photos, setPhotos] = useState<string[]>([]);
+  const { photos, processingPhotos, addPhotos, removePhoto } = useBookingPhotos((message) => showToast(message, 'warning'));
   const [remarks, setRemarks] = useState('');
   const [showPriceTable, setShowPriceTable] = useState(false);
 
@@ -49,23 +50,8 @@ export const BulkyBookingPage: React.FC = () => {
   const stairFee = hasElevator || totalItems === 0 ? 0 : Math.max(0, floor - 1) * 15;
   const totalEstimated = itemsCost + stairFee;
 
-  const handlePhotoAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    Array.from(files)
-      .slice(0, 4 - photos.length)
-      .forEach((f) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result === 'string') {
-            setPhotos((prev) => [...prev.slice(0, 3), reader.result as string]);
-          }
-        };
-        reader.readAsDataURL(f);
-      });
-  };
-
   const handleSubmit = () => {
+    if (processingPhotos) return;
     if (!currentAddr) {
       showToast('请先选择清运地址', 'warning');
       return;
@@ -101,7 +87,7 @@ export const BulkyBookingPage: React.FC = () => {
       photos,
     });
 
-    showToast('大件清运预约已提交', 'success');
+    showToast('大件清运演示预约已创建', 'success');
     navigate({ name: 'tabs' });
     setActiveTab('orders');
   };
@@ -319,21 +305,22 @@ export const BulkyBookingPage: React.FC = () => {
               <div key={i} className="relative w-15 h-15 rounded-lg overflow-hidden border border-[#E6E6E1]">
                 <img src={src} alt="大件照片" className="w-full h-full object-cover" />
                 <button
-                  onClick={() => setPhotos((prev) => prev.filter((_, idx) => idx !== i))}
+                  onClick={() => removePhoto(i)}
                   className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-zinc-900/75 text-white flex items-center justify-center"
                 >
                   <X className="w-2.5 h-2.5" />
                 </button>
               </div>
             ))}
-            {photos.length < 4 && (
+            {photos.length < MAX_BOOKING_PHOTOS && (
               <label className="w-15 h-15 rounded-lg border border-dashed border-zinc-300 bg-[#FAFAF8] flex flex-col items-center justify-center text-zinc-400 cursor-pointer">
                 <Camera className="w-4.5 h-4.5" />
-                <span className="text-[10px] mt-0.5 tabular-nums">{photos.length}/4</span>
-                <input type="file" accept="image/*" multiple onChange={handlePhotoAdd} className="hidden" />
+                <span className="text-[10px] mt-0.5 tabular-nums">{photos.length}/{MAX_BOOKING_PHOTOS}</span>
+                <input type="file" accept="image/*" multiple disabled={processingPhotos} onChange={addPhotos} className="hidden" />
               </label>
             )}
           </div>
+          {processingPhotos && <p role="status" className="text-[11px] text-zinc-500">正在处理照片…</p>}
           <div className="relative">
             <textarea
               maxLength={200}
@@ -368,6 +355,7 @@ export const BulkyBookingPage: React.FC = () => {
         </div>
         <button
           onClick={handleSubmit}
+          disabled={processingPhotos}
           className="px-6 py-2.5 rounded-lg bg-[#B45309] active:opacity-90 text-white font-semibold text-[14px]"
         >
           提交预约

@@ -53,6 +53,11 @@ export const OrdersPage: React.FC = () => {
   });
 
   const selectedOrder: RecycleOrder | undefined = orders.find((o) => o.id === selectedOrderId);
+  const manifestParams = selectedOrder?.manifestNo && new URLSearchParams({
+    no: selectedOrder.manifestNo,
+    order: selectedOrder.orderNo,
+    mode: 'demo',
+  });
 
   return (
     <div className="min-h-full bg-[#F4F4F1] pb-6">
@@ -231,7 +236,7 @@ export const OrdersPage: React.FC = () => {
               </div>
 
               {/* Electronic Manifest Toggle (电子联单) */}
-              {selectedOrder.manifestNo && (
+              {manifestParams && (
                 <div className="rounded-xl border border-[#DCE5E1] bg-[#F5FAF7] overflow-hidden">
                   <button
                     onClick={() => setShowManifest((v) => !v)}
@@ -240,7 +245,7 @@ export const OrdersPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <FileCheck2 className="w-4 h-4 text-[#1D6F5A]" />
                       <div>
-                        <div className="text-[12.5px] font-semibold text-zinc-900">南京清运/回收电子联单</div>
+                        <div className="text-[12.5px] font-semibold text-zinc-900">南京清运 / 回收电子联单（演示）</div>
                         <div className="text-[11px] text-zinc-500 tabular-nums">编号 {selectedOrder.manifestNo}</div>
                       </div>
                     </div>
@@ -252,12 +257,12 @@ export const OrdersPage: React.FC = () => {
                   {showManifest && (
                     <div className="px-3.5 pb-3.5 pt-2 border-t border-[#DCE5E1] bg-white flex items-center gap-3.5">
                       <RealQrCode
-                        value={`ninghuishou://manifest?no=${selectedOrder.manifestNo}&order=${selectedOrder.orderNo}`}
+                        value={`ninghuishou://manifest?${manifestParams}`}
                         size={88}
                         className="shrink-0 border border-[#E6E6E1] p-1"
                       />
                       <div className="text-[11px] text-zinc-600 space-y-1 min-w-0">
-                        <div className="font-semibold text-zinc-900">核验凭证（门卫 / 处置场扫码）</div>
+                        <div className="font-semibold text-zinc-900">联单样例，供本机演示</div>
                         <div>承运单位：{selectedOrder.providerName}</div>
                         {selectedOrder.collector?.plateNo && (
                           <div>备案车牌：{selectedOrder.collector.plateNo}</div>
@@ -355,7 +360,7 @@ export const OrdersPage: React.FC = () => {
                   className="py-2.5 rounded-lg bg-[#1D6F5A] text-white font-semibold text-[13px] flex items-center justify-center gap-1"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>确认核验结算</span>
+                  <span>确认演示结算</span>
                 </button>
               </div>
             )}

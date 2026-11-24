@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   X,
   ScanLine,
@@ -19,9 +19,11 @@ export const ScannerModal: React.FC = () => {
   const [step, setStep] = useState<'scanning' | 'opened' | 'done'>('scanning');
   const [selectedCat, setSelectedCat] = useState(DAILY_MARKET_PRICES[0]);
   const [weight, setWeight] = useState(2.5);
+  const settled = useRef(false);
 
   useEffect(() => {
     if (showScanner) {
+      settled.current = false;
       setStep('scanning');
       setWeight(2.5);
     }
@@ -34,6 +36,8 @@ export const ScannerModal: React.FC = () => {
   const stationLabel = `${user.community}西门智能回收柜 #01`;
 
   const handleFinishDropoff = () => {
+    if (settled.current) return;
+    settled.current = true;
     addQuickDropoff(weight, cash, points, stationLabel, selectedCat.shortName);
     setStep('done');
     showToast(`入账 ¥${cash.toFixed(2)}，+${points} 积分`, 'success');
@@ -45,7 +49,7 @@ export const ScannerModal: React.FC = () => {
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-zinc-800">
           <div className="flex items-center gap-2">
             <ScanLine className="w-4 h-4 text-emerald-400" />
-            <span className="font-semibold text-[14px]">扫码开箱投递</span>
+            <span className="font-semibold text-[14px]">模拟扫码投递</span>
           </div>
           <button
             onClick={() => setShowScanner(false)}
@@ -64,8 +68,8 @@ export const ScannerModal: React.FC = () => {
               <div className="absolute bottom-2.5 right-2.5 w-5 h-5 border-b-2 border-r-2 border-emerald-400" />
               <div className="absolute top-2.5 left-4 right-4 h-[1.5px] bg-emerald-400 animate-scan-line" />
               <div className="text-center px-4">
-                <p className="text-[12px] text-zinc-200 font-medium">对准回收柜屏幕二维码</p>
-                <p className="text-[11px] text-zinc-500 mt-1">识别机号后自动开启对应投口</p>
+                <p className="text-[12px] text-zinc-200 font-medium">模拟识别回收柜二维码</p>
+                <p className="text-[11px] text-zinc-500 mt-1">体验开箱、称重和结算</p>
               </div>
             </div>
 
@@ -73,10 +77,10 @@ export const ScannerModal: React.FC = () => {
               onClick={() => setStep('opened')}
               className="mt-5 w-full py-3 rounded-lg bg-[#1D6F5A] hover:bg-[#175C4A] text-white font-semibold text-[14px] active:opacity-90 transition"
             >
-              连接附近机柜（{user.community} #01）
+              模拟连接（{user.community} #01）
             </button>
             <p className="mt-2 text-[11px] text-zinc-500">
-              未调用摄像头时可直接选择附近机柜体验开箱称重
+              演示金额和积分仅记入本浏览器。
             </p>
           </div>
         )}
@@ -185,30 +189,33 @@ export const ScannerModal: React.FC = () => {
 };
 
 export const QrCodeModal: React.FC = () => {
-  const { showQrModal, setShowQrModal, user } = useApp();
-  const [countdown, setCountdown] = useState(60);
-  const [token, setToken] = useState(() => Date.now());
+  const { showQrModal, setShowQrModal } = useApp();
+  if (!showQrModal) return null;
+  return <DropoffQr onClose={() => setShowQrModal(false)} />;
+};
+
+const DropoffQr: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const [issuedAt, setIssuedAt] = useState(() => Date.now());
+  const [now, setNow] = useState(issuedAt);
   const [bright, setBright] = useState(false);
 
+  const refresh = () => {
+    const time = Date.now();
+    setIssuedAt(time);
+    setNow(time);
+  };
+
   useEffect(() => {
-    if (!showQrModal) return;
     const timer = window.setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          setToken(Date.now());
-          return 60;
-        }
-        return prev - 1;
-      });
+      const time = Date.now();
+      setNow(time);
+      if (time - issuedAt >= 60_000) setIssuedAt(time);
     }, 1000);
     return () => window.clearInterval(timer);
-  }, [showQrModal]);
+  }, [issuedAt]);
 
-  if (!showQrModal) return null;
-
-  const qrPayload = `ninghuishou://v1/dropoff?uid=NJ${user.phone.slice(-4)}&district=${encodeURIComponent(
-    user.district
-  )}&ts=${token}`;
+  const countdown = Math.min(60, Math.max(0, Math.ceil((issuedAt + 60_000 - now) / 1000)));
+  const qrPayload = `ninghuishou://v1/dropoff?mode=demo&ts=${issuedAt}`;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/55 flex items-center justify-center p-4 animate-fade-in">
@@ -219,11 +226,12 @@ export const QrCodeModal: React.FC = () => {
       >
         <div className="bg-[#1D6F5A] px-4 py-3.5 text-white flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-[15px]">居民实名交投码</h3>
-            <p className="text-[11px] text-white/75 mt-0.5">在南京各小区智能回收柜或交投点出示扫码</p>
+            <h3 className="font-semibold text-[15px]">演示交投码</h3>
+            <p className="text-[11px] text-white/75 mt-0.5">用于体验扫码界面</p>
           </div>
           <button
-            onClick={() => setShowQrModal(false)}
+            onClick={onClose}
+            aria-label="关闭交投码"
             className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center"
           >
             <X className="w-4 h-4" />
@@ -231,23 +239,13 @@ export const QrCodeModal: React.FC = () => {
         </div>
 
         <div className="p-5 flex flex-col items-center">
-          <div className="text-center mb-3">
-            <div className="text-[14px] font-semibold text-zinc-900">{user.nickname}</div>
-            <div className="text-[11px] text-zinc-500 mt-0.5 tabular-nums">
-              编号 NJ-{user.phone.slice(-6)} · {user.district} {user.community}
-            </div>
-          </div>
-
           <div className="p-3 rounded-xl bg-white border border-[#E6E6E1]">
             <RealQrCode value={qrPayload} size={184} />
           </div>
 
           <div className="mt-4 flex items-center gap-4 text-[12px] text-zinc-500">
             <button
-              onClick={() => {
-                setToken(Date.now());
-                setCountdown(60);
-              }}
+              onClick={refresh}
               className="flex items-center gap-1 text-[#1D6F5A] font-medium"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -265,7 +263,7 @@ export const QrCodeModal: React.FC = () => {
 
           <div className="mt-4 w-full rounded-lg bg-[#F4F4F1] px-3 py-2 text-[11px] text-zinc-600 flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-[#1D6F5A] shrink-0" />
-            <span>每60秒动态刷新，投递完成后金额与积分自动记入当前账号</span>
+            <span>每 60 秒刷新，仅供演示。</span>
           </div>
         </div>
       </div>

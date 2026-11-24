@@ -75,7 +75,7 @@ export const HomePage: React.FC = () => {
               宁回收
             </span>
             <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/20 backdrop-blur-md text-white border border-white/25">
-              南京
+              南京 · 演示
             </span>
           </div>
 

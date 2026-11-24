@@ -219,7 +219,7 @@ export const RenovationBookingPage: React.FC = () => {
       estimatedWeightKg: unitType === 'bag' ? amount * 15 : amount * 800,
       remarks: remarks.trim() || undefined,
     });
-    showToast('清运预约已提交，电子联单已生成', 'success');
+    showToast('清运演示预约已创建，联单已生成', 'success');
     navigate({ name: 'tabs' });
     setActiveTab('orders');
   };

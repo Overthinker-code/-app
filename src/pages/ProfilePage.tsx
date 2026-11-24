@@ -25,7 +25,7 @@ export const ProfilePage: React.FC = () => {
   const menuGroups = [
     [
       { icon: ScanLine, label: '扫一扫', right: '开箱投递', onClick: () => setShowScanner(true) },
-      { icon: QrCode, label: '交投二维码', right: '实名码', onClick: () => setShowQrModal(true) },
+      { icon: QrCode, label: '交投二维码', right: '演示码', onClick: () => setShowQrModal(true) },
       { icon: Gift, label: '积分兑换', right: `${user.points} 分`, onClick: () => navigate({ name: 'points_mall' }) },
     ],
     [

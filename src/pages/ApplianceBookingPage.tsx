@@ -51,7 +51,7 @@ export const ApplianceBookingPage: React.FC<{ initialProvider?: string }> = ({
       estimatedWeightKg: appliance.weightKg,
       remarks: `${needUninstall ? '需上门拆机；' : ''}${remarks.trim()}`.replace(/；$/, '') || undefined,
     });
-    showToast(`已预约${provider.name}，参考估价 ¥${totalPayout}`, 'success');
+    showToast(`已创建${provider.name}演示预约，参考估价 ¥${totalPayout}`, 'success');
     navigate({ name: 'tabs' });
     setActiveTab('orders');
   };

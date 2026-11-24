@@ -107,7 +107,7 @@ export const RealQrCode: React.FC<{ value: string; size?: number; className?: st
   size = 180,
   className = '',
 }) => {
-  const [svgMarkup, setSvgMarkup] = useState<string>('');
+  const [qrImage, setQrImage] = useState<{ value: string; size: number; src: string } | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -119,17 +119,17 @@ export const RealQrCode: React.FC<{ value: string; size?: number; className?: st
       errorCorrectionLevel: 'M',
     })
       .then((svg) => {
-        if (mounted) setSvgMarkup(svg);
+        if (mounted) setQrImage({ value, size, src: `data:image/svg+xml,${encodeURIComponent(svg)}` });
       })
       .catch(() => {
-        if (mounted) setSvgMarkup('');
+        if (mounted) setQrImage(null);
       });
     return () => {
       mounted = false;
     };
   }, [value, size]);
 
-  if (!svgMarkup) {
+  if (qrImage?.value !== value || qrImage.size !== size) {
     return (
       <div
         style={{ width: size, height: size }}
@@ -141,9 +141,10 @@ export const RealQrCode: React.FC<{ value: string; size?: number; className?: st
   return (
     <div
       style={{ width: size, height: size }}
-      className={`overflow-hidden rounded-lg [&>svg]:w-full [&>svg]:h-full ${className}`}
-      dangerouslySetInnerHTML={{ __html: svgMarkup }}
-    />
+      className={`overflow-hidden rounded-lg ${className}`}
+    >
+      <img src={qrImage.src} alt="演示二维码" className="block w-full h-full" />
+    </div>
   );
 };
 
